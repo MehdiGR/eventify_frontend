@@ -56,7 +56,7 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
         <CreateEventForm onSubmitSuccess={handleSubmitSuccess} />
       </StyledDialogContent>
 
-      {/* <DialogActions
+      <DialogActions
         sx={{
           padding: 2,
           borderTop: 1,
@@ -74,7 +74,7 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
         >
           Create Event
         </Button>
-      </DialogActions> */}
+      </DialogActions>
     </StyledDialog>
   );
 };

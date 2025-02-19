@@ -64,6 +64,7 @@ const EventCard = ({ event, variant, onBookmark }: EventCardProps) => {
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
     onBookmark(event.id);
+    console.log(event, 'onbo event');
   };
 
   const formatDate = (dateString: string) => {
@@ -87,7 +88,7 @@ const EventCard = ({ event, variant, onBookmark }: EventCardProps) => {
             <CardMedia
               component="img"
               sx={{ height: '100%', minHeight: 200 }}
-              image={event.imageUrl}
+              image={event?.image || ''}
               alt={event.name}
             />
             {event.category && <CategoryChip size="small" label={event.category} />}
@@ -164,10 +165,10 @@ const EventCard = ({ event, variant, onBookmark }: EventCardProps) => {
                   {event.price ? `$${event.price}` : 'Free'}
                 </Typography>
 
-                {event.attendees && (
+                {event.participantCount && (
                   <Chip
                     size="small"
-                    label={`${event.attendees} attending`}
+                    label={`${event.participantCount} attending`}
                     variant="outlined"
                     sx={{ fontSize: '0.75rem' }}
                   />
@@ -184,12 +185,7 @@ const EventCard = ({ event, variant, onBookmark }: EventCardProps) => {
   return (
     <StyledCard>
       <Box sx={{ position: 'relative' }}>
-        <CardMedia
-          component="img"
-          height="200"
-          image={event.imageUrl || '/api/placeholder/400/200'}
-          alt={event.name}
-        />
+        <CardMedia component="img" height="200" image={event.image || ''} alt={event.name} />
         {event.category && <CategoryChip size="small" label={event.category} />}
         <BookmarkButton
           onClick={handleBookmark}
@@ -252,11 +248,10 @@ const EventCard = ({ event, variant, onBookmark }: EventCardProps) => {
             <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
               {event.price ? `$${event.price}` : 'Free'}
             </Typography>
-
-            {event.attendees && (
+            {event.participantCount==0 && (
               <Chip
                 size="small"
-                label={`${event.attendees} attending`}
+                label={`${event.participantCount} attending`}
                 variant="outlined"
                 sx={{ fontSize: '0.75rem' }}
               />

@@ -1,12 +1,10 @@
-import { useState } from 'react';
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { styled } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
-// import AspectRatio from '@mui/joy/AspectRatio';
-import Image from 'next/image';
+import { useController, useFormContext } from 'react-hook-form';
 
-// Visually Hidden Input
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
   clipPath: 'inset(50%)',
@@ -22,117 +20,157 @@ const VisuallyHiddenInput = styled('input')({
 interface ImageUploadFieldProps {
   name: string;
   label: string;
+  existingImageUrl?: string; // Optional prop for existing image URL
 }
 
-const ImageUploadField = ({ name, label }: ImageUploadFieldProps) => {
+const ImageUploadField = ({ name, label, existingImageUrl }: ImageUploadFieldProps) => {
   const { t } = useTranslation(['event']);
-  const [file, setFile] = useState<File | null>(null); // To store the selected file
-  const [previewUrl, setPreviewUrl] = useState<string>(''); // To store the preview URL of the image
+  const [previewUrl, setPreviewUrl] = useState<string>(existingImageUrl || '');
+  const { control } = useFormContext();
+  const {
+    field: { onChange, onBlur, value, ref },
+    fieldState: { error },
+  } = useController({
+    name,
+    control,
+    defaultValue: null,
+  });
 
-  // Handle file selection
+  useEffect(() => {
+    return () => {
+      if (previewUrl && !existingImageUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl, existingImageUrl]);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0] || null; // Get the first file if available
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile)); // Create a preview URL for the image
-    } else {
-      setFile(null);
-      setPreviewUrl('');
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    // Validate file size (e.g., 5MB limit)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      alert(t('event:image_too_large'));
+      return;
     }
+
+    // Validate file type
+    if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
+      alert(t('event:unsupported_format'));
+      return;
+    }
+
+    onChange(selectedFile);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(URL.createObjectURL(selectedFile));
   };
 
   return (
     <Box>
-      {/* Outer Container */}
       <Box
         display="flex"
         flexDirection="column"
         alignItems="center"
         justifyContent="center"
         border="2px dashed"
-        borderColor="grey.300"
-        borderRadius="8px"
-        padding={4}
+        borderColor={error ? 'error.main' : 'grey.300'}
+        borderRadius="12px"
+        padding={3}
         sx={{
           cursor: 'pointer',
-          transition: 'border-color 0.3s ease',
+          transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
           '&:hover': {
-            borderColor: 'primary.main',
+            borderColor: error ? 'error.main' : 'primary.main',
+            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
           },
         }}
-        onClick={(e) => {
-          // Trigger the hidden file input when the box is clicked
-          const fileInput = document.getElementById(name);
-          if (fileInput) {
-            fileInput.click();
-          }
-        }}
+        onClick={() => document.getElementById(name)?.click()}
       >
-        {/* Display the selected image preview */}
-        {previewUrl ? (
+        {previewUrl || existingImageUrl ? (
           <Box
             sx={{
-              width: '100%', // Full width of the container
-              height: 'auto', // Maintain aspect ratio
-              mb: 2,
-              borderRadius: '8px',
+              position: 'relative',
+              width: '100%',
+              maxWidth: 250,
+              height: 150,
               overflow: 'hidden',
+              borderRadius: '8px',
               border: '2px solid',
-              borderColor: 'primary.main',
+              borderColor: error ? 'error.main' : 'primary.main',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#f5f5f5',
             }}
           >
             <img
-              src={previewUrl}
+              src={previewUrl || existingImageUrl}
               alt="Uploaded Preview"
               style={{
-                width: '100%',
-                height: 'auto',
-                display: 'block',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
               }}
             />
-            {/* <AspectRatio variant="outlined" ratio="1" objectFit="cover"> */}
-              {/* only layout="fill" makes sense for using with AspectRatio */}
-              {/* <Image alt="Uploaded Preview" src={previewUrl} objectFit='cover' width={100} height={100} /> */}
-            {/* </AspectRatio> */}
           </Box>
         ) : (
           <>
-            {/* Label */}
-            <Typography variant="body1" color="textSecondary">
+            <Typography variant="body1" color={error ? 'error' : 'textSecondary'}>
               {label}
             </Typography>
-
-            {/* Camera Icon */}
-            <CameraAltIcon sx={{ fontSize: 48, color: 'grey.500', my: 2 }} />
+            <CameraAltIcon sx={{ fontSize: 40, color: error ? 'error.main' : 'grey.500', my: 2 }} />
           </>
         )}
-
-        {/* Hidden File Input */}
         <VisuallyHiddenInput
-          id={name} // Use the `name` as the ID for the input
+          id={name}
+          name={name}
           type="file"
           accept="image/*"
           onChange={handleFileChange}
+          onBlur={onBlur}
+          ref={ref}
+          aria-label={t('event:upload_image')}
         />
-
-        {/* Upload Button */}
         <Button
-          component="label" // Use Material-UI's Button as a label
+          component="label"
           role={undefined}
           tabIndex={-1}
           variant="outlined"
-          color="primary"
+          color={error ? 'error' : 'primary'}
           startIcon={<CameraAltIcon />}
           onClick={(e) => {
-            e.stopPropagation(); // Prevent triggering the parent Box's click event
-            const fileInput = document.getElementById(name);
-            if (fileInput) {
-              fileInput.click();
-            }
+            e.stopPropagation();
+            document.getElementById(name)?.click();
           }}
+          sx={{ mt: 2 }}
         >
           {t('event:upload_image')}
         </Button>
+        {previewUrl && (
+          <Button
+            variant="text"
+            color="error"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange(null);
+              if (previewUrl && !existingImageUrl) {
+                URL.revokeObjectURL(previewUrl);
+              }
+              setPreviewUrl(existingImageUrl || '');
+            }}
+            sx={{ mt: 1 }}
+          >
+            {t('event:remove_image')}
+          </Button>
+        )}
+        {error && (
+          <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+            {error.message}
+          </Typography>
+        )}
       </Box>
     </Box>
   );

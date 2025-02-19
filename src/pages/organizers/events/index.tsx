@@ -12,59 +12,49 @@ import Labels from '@common/defs/labels';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 import EventsTable from '@modules/events/components/partials/EventsTable';
-import SummaryCards from '@modules/organizer/components/dashboard/SummaryCards';
 import { useEffect, useState } from 'react';
-import useEvents from '@modules/events/hooks/api/useEvents';
-import { Event } from '@modules/events/defs/types';
+import useApi from '@common/hooks/useApi';
+import { Button, LinearProgress } from '@mui/material';
+import SummaryCards from '@modules/organizer/components/dashboard/SummaryCards';
+import LoadingPage from '@common/components/lib/feedbacks/LoadingPage';
 
 const OrganizersPage: NextPage = () => {
   const router = useRouter();
-  const { readAll } = useEvents();
   const { t } = useTranslation(['event']);
-  const [stats, setStats] = useState({
+  const fetchApi = useApi();
+
+  // Stats state
+  const [stats, setStats] = useState<Stats>({
     totalEvents: 0,
     upcomingEvents: 0,
     totalParticipants: 0,
     revenue: 0,
-    eventsTrend: 0,
-    participantsTrend: 0,
   });
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
 
+  // Fetch stats independently
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStats = async () => {
       try {
-        const { data } = await readAll();
-        if (data?.items) {
-          const eventsData = data.items as Event[];
-          setEvents(eventsData);
-          setStats(calculateStats(eventsData));
+        const response = await fetchApi('events/organizer/stats');
+        if (response.success) {
+         setStats({
+           totalEvents: response.data.total_events,
+           upcomingEvents: response.data.upcoming_events,
+           totalParticipants: response.data.total_participants,
+           revenue: response.data.revenue || 0,
+           // Add trends here when backend implements them
+         });
         }
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error('Error loading stats:', error);
       } finally {
-        setLoading(false);
+        setStatsLoading(false);
       }
     };
 
-    fetchData();
+    fetchStats();
   }, []);
-
-  const calculateStats = (events: Event[]) => {
-    const now = new Date();
-    return {
-      totalEvents: events.length,
-      upcomingEvents: events.filter((e) => new Date(e.start_date) > now).length,
-      totalParticipants: events.reduce((sum, e) => sum + (e.participants?.length || 0), 0),
-      revenue: events.reduce(
-        (sum, e) => sum + (e.ticketTypes?.reduce((tSum: any, t:any) => tSum + t.price, 0) || 0),
-        0
-      ),
-      eventsTrend: 0, // You'll need historical data for trends
-      participantsTrend: 0,
-    };
-  };
 
   return (
     <>
@@ -88,9 +78,23 @@ const OrganizersPage: NextPage = () => {
         ]}
       />
 
-      {!loading && <SummaryCards stats={stats} />}
-
-      <EventsTable events={events} loading={loading} onRefresh={fetchData} />
+      {statsLoading ? (
+        <LoadingPage /> // In OrganizersPage component
+      ) : (
+        <SummaryCards
+          stats={{
+            totalEvents: stats.totalEvents,
+            upcomingEvents: stats.upcomingEvents,
+            totalParticipants: stats.totalParticipants,
+            revenue: stats.revenue,
+            eventsTrend: stats.eventsTrend,
+            participantsTrend: stats.participantsTrend,
+          }}
+          loading={statsLoading}
+        />
+      )}
+      {/* EventsTable manages its own data via useEvents hook */}
+      <EventsTable />
     </>
   );
 };

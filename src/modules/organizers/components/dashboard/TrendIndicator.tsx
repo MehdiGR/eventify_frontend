@@ -4,6 +4,7 @@ import { Typography } from '@mui/material';
 // modules/common/components/TrendIndicator.tsx
 export const TrendIndicator = ({ trend }: { trend: number }) => {
   const isPositive = trend >= 0;
+  
 
   return (
     <Typography

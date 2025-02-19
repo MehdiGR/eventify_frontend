@@ -4,14 +4,11 @@ import {
   Button,
   CircularProgress,
   Typography,
-  Tabs,
-  Tab,
-  Box,
-  Container,
-  Paper,
-  Stack,
-  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { RHFTextField } from '@common/components/lib/react-hook-form';
 import useEvents, { CreateOneInput } from '@modules/events/hooks/api/useEvents';
 import useUploads from '@modules/uploads/hooks/api/useUploads';
@@ -77,12 +74,12 @@ const CreateEventForm = () => {
   const router = useRouter();
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
 
   const onSubmit: SubmitHandler<CreateOneInput> = async (data) => {
     try {
       setSubmissionError(null);
       setImageUploadError(null);
+
       let imageUrl = null;
       if (data.image instanceof File) {
         const uploadResponse = await uploadImage({ file: data.image });
@@ -96,19 +93,20 @@ const CreateEventForm = () => {
         }
         imageUrl = uploadResponse.data.item.url;
       }
+
       const formattedData = {
         ...data,
         start_date: dayjs(data.start_date).format('YYYY-MM-DD HH:mm:ss'),
         end_date: dayjs(data.end_date).format('YYYY-MM-DD HH:mm:ss'),
         image: imageUrl,
       };
-      console.log(formattedData,"formatdata")
-      // return
+
       const createResponse = await createEvent(formattedData);
       if (!createResponse.success) {
         throw new Error(createResponse.errors?.[0] || "Échec de la création de l'événement");
       }
-      // router.push(Routes.Events.ReadAll);
+
+      router.push(Routes.Events.ReadAll);
     } catch (error: any) {
       console.error('Form submission error:', error.message);
       setSubmissionError(error.message || 'Une erreur est survenue');
@@ -118,60 +116,32 @@ const CreateEventForm = () => {
 
   return (
     <FormProvider {...methods}>
-      <Container maxWidth="md">
-        <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
-          <Typography variant="h5" align="center" gutterBottom>
-            Créer un nouvel événement
-          </Typography>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={3} sx={{ padding: 6 }}>
+          {/* Error Messages */}
+          {submissionError && (
+            <Grid item xs={12}>
+              <Typography color="error">{submissionError}</Typography>
+            </Grid>
+          )}
+          {imageUploadError && (
+            <Grid item xs={12}>
+              <Typography color="error">{imageUploadError}</Typography>
+            </Grid>
+          )}
 
-          {/* Image Upload at Top */}
-          <Box sx={{ maxWidth: '300px', mx: 'auto', mb: 4, mt: 2 }}>
-            <ImageUploadField name="image" label={t('event:image')} />
-          </Box>
-
-          <Divider sx={{ mb: 3 }} />
-
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container spacing={4}>
-              {(submissionError || imageUploadError) && (
-                <Grid item xs={12}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 2,
-                      bgcolor: '#FFF4F4',
-                      borderRadius: 1,
-                      border: '1px solid #FFCDD2',
-                    }}
-                  >
-                    <Typography color="error" variant="body2">
-                      {submissionError || imageUploadError}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              )}
-
-              <Grid item xs={12}>
-                <Tabs
-                  value={activeTab}
-                  onChange={(_, newValue) => setActiveTab(newValue)}
-                  indicatorColor="primary"
-                  textColor="primary"
-                  variant="fullWidth"
-                  sx={{ mb: 3 }}
-                >
-                  <Tab label="Détails" />
-                  <Tab label="Date & Heure" />
-                  <Tab label="Participants" />
-                </Tabs>
-              </Grid>
-
-              <Grid item xs={12}>
-                {/* Tab 1: Details */}
-                <Box hidden={activeTab !== 0} sx={{ display: activeTab === 0 ? 'block' : 'none' }}>
-                  <Stack spacing={3}>
+          {/* Accordion for Event Details */}
+          <Grid item xs={12}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="event-details">
+                <Typography variant="h6">Détails de l'événement</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
                     <RHFTextField name="name" label="Nom de l'événement" fullWidth />
-                    <RHFTextField name="location" label="Lieu" fullWidth />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
                     <RHFTextField
                       name="description"
                       label="Description"
@@ -179,67 +149,82 @@ const CreateEventForm = () => {
                       rows={4}
                       fullWidth
                     />
-                  </Stack>
-                </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <ImageUploadField name="image" label={t('event:image')} />
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
 
-                {/* Tab 2: Date & Time */}
-                <Box hidden={activeTab !== 1} sx={{ display: activeTab === 1 ? 'block' : 'none' }}>
-                  <Stack spacing={3}>
+          {/* Accordion for Date & Time */}
+          <Grid item xs={12}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="date-time">
+                <Typography variant="h6">Date et heure</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
                     <RHFTextField
                       name="start_date"
                       label="Date de début"
                       type="datetime-local"
+                      InputLabelProps={{ shrink: true }}
                       fullWidth
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
                     />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
                     <RHFTextField
                       name="end_date"
                       label="Date de fin"
                       type="datetime-local"
+                      InputLabelProps={{ shrink: true }}
                       fullWidth
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
                     />
-                  </Stack>
-                </Box>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
 
-                {/* Tab 3: Participants */}
-                <Box hidden={activeTab !== 2} sx={{ display: activeTab === 2 ? 'block' : 'none' }}>
-                  <Stack spacing={3}>
+          {/* Accordion for Participants */}
+          <Grid item xs={12}>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="participants">
+                <Typography variant="h6">Participants</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
                     <RHFTextField
                       name="max_participants"
                       label="Nombre maximum de participants"
                       type="number"
+                      inputProps={{ min: 1 }}
                       fullWidth
                     />
-                  </Stack>
-                </Box>
-              </Grid>
+                  </Grid>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
 
-              <Grid item xs={12} sx={{ mt: 2 }}>
-                <Divider sx={{ mb: 3 }} />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  size="large"
-                  sx={{ py: 1.5 }}
-                >
-                  {methods.formState.isSubmitting ? (
-                    <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    "Créer l'événement"
-                  )}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </Paper>
-      </Container>
+          {/* Submit Button */}
+          <Grid item xs={12}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={methods.formState.isSubmitting}
+              startIcon={methods.formState.isSubmitting && <CircularProgress size={20} />}
+            >
+              {methods.formState.isSubmitting ? 'Envoi en cours...' : 'Créer événement'}
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
     </FormProvider>
   );
 };

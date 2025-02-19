@@ -18,10 +18,12 @@ export interface Event extends CrudObject {
   description: string;
   start_date: string;
   end_date: string;
-  organizer_id: Id;
+  organizer_id?: Id;
   organizer: User;
   participants?: User[];
   // ticketTypes?: TicketType[];
   location?: string;
   max_participants?: number;
+  participants_count?: number; // Add this if not present
+  previous_period_count?: number; // New field for trend calculation
 }

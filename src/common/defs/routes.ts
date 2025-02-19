@@ -1,7 +1,9 @@
 import Auth from '@modules/auth/defs/routes';
 import Users from '@modules/users/defs/routes';
 import Events from '@modules/events/defs/routes';
+import Organizers from '@modules/events/defs/routes';
 import Permissions from '@modules/permissions/defs/routes';
+import Admin from '@modules/admin/defs/routes';
 
 const Common = {
   Home: '/',
@@ -14,6 +16,7 @@ const Routes = {
   Permissions,
   Users,
   Events,
+  Organizers,
 };
 
 export default Routes;

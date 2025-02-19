@@ -9,23 +9,26 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 import Organizers from 'src/pages/organizers';
 
-const userRole ='organizer';
+// const { user, logout } = useAuth();
+// console.log(user,"user")
+const userRole = 'organizer';
 const Index: NextPage = () => {
   const { t } = useTranslation(['home']);
+  
   return (
     <>
       {/* <PageHeader title={t('home:dashboard')} /> */}
       {userRole === 'admin' ? (
         <>
-          <HeroSlider />
-          <EventsGrid />
+          <Organizers />
+          {/* <EventsGrid /> */}
         </>
       ) : userRole === 'organizer' ? (
         <>
           <Organizers />
           {/* <EventsGrid /> */}
         </>
-      ) : userRole === 'participant'  ? (
+      ) : userRole === 'participant' ? (
         <>
           <HeroSlider />
           <EventsGrid />

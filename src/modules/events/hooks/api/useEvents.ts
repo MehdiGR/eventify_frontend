@@ -10,15 +10,20 @@ export interface CreateOneInput {
   start_date: string; // ISO date string
   end_date: string; // ISO date string
   organizer_id: Id;
-  imageUrl?: string | null; // Changed from image: null to match Event interface
+  location: string;
+  max_participants: number;
+  image?: string | null; // Changed from image: null to match Event interface
 }
 
 export interface UpdateOneInput {
+  id: number;
   name?: string;
   description?: string;
   start_date?: string; // ISO date string
   end_date?: string; // ISO date string
-  imageUrl?: string | null; // Added to match Event interface
+  location: string;
+  max_participants: number;
+  image?: string | null; // Added to match Event interface
   // No organizer_id here, which is correct as we don't want to allow changing the organizer
 }
 export type UpsertOneInput = CreateOneInput | UpdateOneInput;

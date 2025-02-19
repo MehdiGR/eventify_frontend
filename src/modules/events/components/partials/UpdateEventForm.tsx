@@ -1,4 +1,4 @@
-import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import { useForm, FormProvider, SubmitHandler, Controller, useFormContext } from 'react-hook-form';
 import {
   Grid,
   Button,
@@ -13,7 +13,7 @@ import {
   Divider,
 } from '@mui/material';
 import { RHFTextField } from '@common/components/lib/react-hook-form';
-import useEvents, { CreateOneInput } from '@modules/events/hooks/api/useEvents';
+import useEvents, { UpdateOneInput } from '@modules/events/hooks/api/useEvents';
 import useUploads from '@modules/uploads/hooks/api/useUploads';
 import { useRouter } from 'next/router';
 import Routes from '@common/defs/routes';
@@ -24,6 +24,7 @@ import useAuth from '@modules/auth/hooks/api/useAuth';
 import ImageUploadField from '@modules/events/components/partials/ImageUploadField';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
 
 // Validation Schema
 const schema = Yup.object().shape({
@@ -55,35 +56,40 @@ const schema = Yup.object().shape({
   organizer_id: Yup.number().required().positive().integer(),
 });
 
-const CreateEventForm = () => {
+interface UpdateEventFormProps {
+  event: UpdateOneInput;
+}
+
+const UpdateEventForm: React.FC<UpdateEventFormProps> = ({ event }) => {
   const { t } = useTranslation(['event', 'common']);
   const { user } = useAuth();
-  const methods = useForm<CreateOneInput>({
+  const methods = useForm<UpdateOneInput>({
     resolver: yupResolver(schema),
     defaultValues: {
-      name: '',
-      description: '',
-      start_date: '',
-      end_date: '',
-      location: '',
-      max_participants: 50,
-      image: null,
-      organizer_id: user?.id || 0,
+      name: event.name || '',
+      description: event.description || '',
+      start_date: dayjs(event.start_date).format('YYYY-MM-DDTHH:mm') || '',
+      end_date: dayjs(event.end_date).format('YYYY-MM-DDTHH:mm') || '',
+      location: event.location || '',
+      max_participants: event.max_participants || 50,
+      image: event.image || null,
     },
   });
   const { handleSubmit, setError } = methods;
-  const { createOne: createEvent } = useEvents();
+  const { updateOne: updateEvent } = useEvents();
   const { createOne: uploadImage } = useUploads();
   const router = useRouter();
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
-  const onSubmit: SubmitHandler<CreateOneInput> = async (data) => {
+  const onSubmit: SubmitHandler<UpdateOneInput> = async (data) => {
     try {
       setSubmissionError(null);
       setImageUploadError(null);
-      let imageUrl = null;
+
+      let imageUrl = event.image;
+
       if (data.image instanceof File) {
         const uploadResponse = await uploadImage({ file: data.image });
         if (!uploadResponse.success) {
@@ -96,19 +102,20 @@ const CreateEventForm = () => {
         }
         imageUrl = uploadResponse.data.item.url;
       }
+
       const formattedData = {
         ...data,
         start_date: dayjs(data.start_date).format('YYYY-MM-DD HH:mm:ss'),
         end_date: dayjs(data.end_date).format('YYYY-MM-DD HH:mm:ss'),
         image: imageUrl,
       };
-      console.log(formattedData,"formatdata")
-      // return
-      const createResponse = await createEvent(formattedData);
-      if (!createResponse.success) {
-        throw new Error(createResponse.errors?.[0] || "Échec de la création de l'événement");
+
+      const updateResponse = await updateEvent(event.id, formattedData);
+      if (!updateResponse.success) {
+        throw new Error(updateResponse.errors?.[0] || "Échec de la mise à jour de l'événement");
       }
-      // router.push(Routes.Events.ReadAll);
+
+      router.push(Routes.Events.ReadAll);
     } catch (error: any) {
       console.error('Form submission error:', error.message);
       setSubmissionError(error.message || 'Une erreur est survenue');
@@ -121,16 +128,17 @@ const CreateEventForm = () => {
       <Container maxWidth="md">
         <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
           <Typography variant="h5" align="center" gutterBottom>
-            Créer un nouvel événement
+            Modifier l'événement
           </Typography>
-
           {/* Image Upload at Top */}
           <Box sx={{ maxWidth: '300px', mx: 'auto', mb: 4, mt: 2 }}>
-            <ImageUploadField name="image" label={t('event:image')} />
+            <ImageUploadField
+              name="image"
+              label={t('event:image')}
+              existingImageUrl={typeof event.image === 'string' ? event.image : undefined}
+            />
           </Box>
-
           <Divider sx={{ mb: 3 }} />
-
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={4}>
               {(submissionError || imageUploadError) && (
@@ -150,7 +158,6 @@ const CreateEventForm = () => {
                   </Paper>
                 </Grid>
               )}
-
               <Grid item xs={12}>
                 <Tabs
                   value={activeTab}
@@ -165,7 +172,6 @@ const CreateEventForm = () => {
                   <Tab label="Participants" />
                 </Tabs>
               </Grid>
-
               <Grid item xs={12}>
                 {/* Tab 1: Details */}
                 <Box hidden={activeTab !== 0} sx={{ display: activeTab === 0 ? 'block' : 'none' }}>
@@ -181,7 +187,6 @@ const CreateEventForm = () => {
                     />
                   </Stack>
                 </Box>
-
                 {/* Tab 2: Date & Time */}
                 <Box hidden={activeTab !== 1} sx={{ display: activeTab === 1 ? 'block' : 'none' }}>
                   <Stack spacing={3}>
@@ -205,7 +210,6 @@ const CreateEventForm = () => {
                     />
                   </Stack>
                 </Box>
-
                 {/* Tab 3: Participants */}
                 <Box hidden={activeTab !== 2} sx={{ display: activeTab === 2 ? 'block' : 'none' }}>
                   <Stack spacing={3}>
@@ -218,7 +222,6 @@ const CreateEventForm = () => {
                   </Stack>
                 </Box>
               </Grid>
-
               <Grid item xs={12} sx={{ mt: 2 }}>
                 <Divider sx={{ mb: 3 }} />
                 <Button
@@ -232,7 +235,7 @@ const CreateEventForm = () => {
                   {methods.formState.isSubmitting ? (
                     <CircularProgress size={24} color="inherit" />
                   ) : (
-                    "Créer l'événement"
+                    "Mettre à jour l'événement"
                   )}
                 </Button>
               </Grid>
@@ -244,4 +247,18 @@ const CreateEventForm = () => {
   );
 };
 
-export default CreateEventForm;
+// UpdateEventForm.propTypes = {
+//   event: PropTypes.shape({
+//     id: PropTypes.number.isRequired,
+//     name: PropTypes.string.isRequired,
+//     description: PropTypes.string,
+//     start_date: PropTypes.string.isRequired,
+//     end_date: PropTypes.string.isRequired,
+//     location: PropTypes.string.isRequired,
+//     max_participants: PropTypes.number.isRequired,
+//     image: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(File)]),
+//     organizer_id: PropTypes.number.isRequired,
+//   }).isRequired,
+// };
+
+export default UpdateEventForm;
