@@ -26,4 +26,24 @@ export interface Event extends CrudObject {
   max_participants?: number;
   participants_count?: number; // Add this if not present
   previous_period_count?: number; // New field for trend calculation
+  status: string;
+  visibility;
+
+}
+
+
+export interface EventParticipant {
+  id: Id;
+  user_id: Id;
+  event_id: Id;
+  registration_date: string;
+  user: {
+    name: string;
+    email: string;
+  };
+}
+
+
+export interface ParticipantWithUser extends EventParticipant {
+  user: User;
 }

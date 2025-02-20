@@ -14,9 +14,9 @@ import { useTranslation } from 'react-i18next';
 import EventsTable from '@modules/events/components/partials/EventsTable';
 import { useEffect, useState } from 'react';
 import useApi from '@common/hooks/useApi';
-import { Button, LinearProgress } from '@mui/material';
-import SummaryCards from '@modules/organizer/components/dashboard/SummaryCards';
 import LoadingPage from '@common/components/lib/feedbacks/LoadingPage';
+import SummaryCards from '@modules/organizer/components/dashboard/SummaryCards';
+import CreateEventModal from '@modules/events/components/CreateEventModal';
 
 const OrganizersPage: NextPage = () => {
   const router = useRouter();
@@ -31,12 +31,14 @@ const OrganizersPage: NextPage = () => {
     revenue: 0,
   });
   const [statsLoading, setStatsLoading] = useState(true);
-
+const [isOpenCreateEventModal, setIsOpenCreateEventModal] = useState(false);
+const openModalCreateEventModal = () => setIsOpenCreateEventModal(true);
+const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
   // Fetch stats independently
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetchApi('events/organizer/stats');
+        const response = await fetchApi<Stats>('events/organizer/stats');
         if (response.success) {
          setStats({
            totalEvents: response.data.total_events,
@@ -58,18 +60,23 @@ const OrganizersPage: NextPage = () => {
 
   return (
     <>
+    <CreateEventModal open={isOpenCreateEventModal} onClose={closeModalCreateEventModal} />
       <PageHeader
         title={t(`event:${Labels.Events.ReadAll}`)}
         action={{
           label: t(`event:${Labels.Events.NewOne}`),
           startIcon: <Add />,
-          onClick: () => router.push(Routes.Events.CreateOne),
+          // onClick: () => router.push(Routes.Events.CreateOne),
+          onClick: () => openModalCreateEventModal(),
           permission: {
             entity: Namespaces.Events,
             action: CRUD_ACTION.CREATE,
           },
         }}
       />
+      {/* <Button variant="contained" onClick={openModalCreateEventModal} sx={{ marginTop: '60px' }}>
+        Create Event
+      </Button> */}
 
       <CustomBreadcrumbs
         links={[

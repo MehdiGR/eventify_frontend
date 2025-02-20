@@ -1,0 +1,18 @@
+{
+  "common": {
+    "create_new_one": "Créer un nouvel événement",
+    "edit_one": "Éditer événement",
+    "items": "événements",
+    "new_one": "Nouvel événement",
+    "read_all": "Liste des événements"
+  },
+  "action": {
+    "viewParticipate": "Afficher les participants"
+  },
+   "list": {
+    "name": "nom",
+    "description": "description",
+    "start_date": "date début",
+    "end_date": "date fin"
+  }
+}

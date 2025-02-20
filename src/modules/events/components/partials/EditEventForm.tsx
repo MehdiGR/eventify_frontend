@@ -37,10 +37,14 @@ const EditEventForm = ({ item }: EditEventFormProps) => {
   });
 
   const defaultValues: UpdateOneInput = {
+    id:item.id,
     name: item.name,
     description: item.description,
     start_date: item.start_date,
     end_date: item.end_date,
+    max_participants:item.max_participants as number,
+    location:item.location,
+    image:item.image
     // is_private: item.is_private,
   };
 

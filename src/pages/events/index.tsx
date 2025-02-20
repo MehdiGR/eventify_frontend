@@ -58,10 +58,7 @@ const closeModal = () => setIsOpen(false);
       {/* <Button variant="outlined" href="#outlined-buttons">
         Link
       </Button> */}
-      <Button variant="contained" onClick={openModal} sx={{marginTop:"60px"}}>
-        Create Event
-      </Button>
-      <CreateEventModal open={isOpen} onClose={closeModal} />
+     
       <EventsGrid />
     </>
   );

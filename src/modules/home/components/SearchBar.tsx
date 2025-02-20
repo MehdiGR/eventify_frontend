@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search as SearchIcon, LocationOn } from '@mui/icons-material';
-
 import { Box, Button, Container, Tabs, Tab, Paper, InputBase } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 interface SearchBarProps {
   tabValue: number;
-  handleTabChange: (value: React.SetStateAction<number>) => void;
+  handleTabChange: (event: React.SyntheticEvent, newValue: number) => void;
+  onSearch: (query: string, location: string) => void;
+}
+
+// Define type for search configuration
+interface SearchConfig {
+  [key: number]: {
+    keys: string[];
+    placeholder: string;
+  };
 }
 
 // Styled components for the search box
@@ -26,8 +34,27 @@ const SearchInput = styled(InputBase)(({ theme }) => ({
   padding: theme.spacing(1),
   fontSize: '1.1rem',
 }));
-// eslint-disable-next-line react/function-component-definition
-export default function SearchBar({ tabValue, handleTabChange }: SearchBarProps) {
+
+const searchConfig: SearchConfig = {
+  0: { keys: ['name', 'description'], placeholder: 'Search for events' },
+  1: { keys: ['venueName', 'address'], placeholder: 'Search for venues' },
+  2: { keys: ['performerName', 'genre'], placeholder: 'Search for performers' },
+};
+
+export default function SearchBar({ tabValue, handleTabChange, onSearch }: SearchBarProps) {
+  const [localQuery, setLocalQuery] = useState('');
+  const [location, setLocation] = useState('');
+
+  const handleSearch = () => {
+    onSearch(localQuery, location);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <Container
       maxWidth="lg"
@@ -58,14 +85,10 @@ export default function SearchBar({ tabValue, handleTabChange }: SearchBarProps)
           >
             <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
             <SearchInput
-              placeholder={
-                // eslint-disable-next-line no-nested-ternary
-                tabValue === 0
-                  ? 'Search for events'
-                  : tabValue === 1
-                  ? 'Search for venues'
-                  : 'Search for performers'
-              }
+              placeholder={searchConfig[tabValue].placeholder}
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
               fullWidth
             />
           </Box>
@@ -81,10 +104,17 @@ export default function SearchBar({ tabValue, handleTabChange }: SearchBarProps)
             }}
           >
             <LocationOn sx={{ color: 'text.secondary', mr: 1 }} />
-            <SearchInput placeholder="Location" fullWidth />
+            <SearchInput
+              placeholder="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              onKeyPress={handleKeyPress}
+              fullWidth
+            />
           </Box>
 
           <Button
+            onClick={handleSearch}
             variant="contained"
             sx={{
               ml: 2,

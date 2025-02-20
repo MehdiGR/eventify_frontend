@@ -1,4 +1,4 @@
-// components/CreateEventModal.tsx
+// components/UpdateEventModal.tsx
 import React from 'react';
 import {
   Dialog,
@@ -10,7 +10,8 @@ import {
   styled,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import CreateEventForm from '@modules/events/components/partials/CreateEventForm';
+import UpdateEventForm from '@modules/events/components/partials/UpdateEventForm';
+import { Event } from '@modules/events/defs/types';
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -24,12 +25,13 @@ const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
   overflowY: 'auto',
 }));
 
-interface CreateEventModalProps {
+interface UpdateEventModalProps {
   open: boolean;
   onClose: () => void;
+  event:Event
 }
 
-const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
+const UpdateEventModal = ({ open, onClose, event }: UpdateEventModalProps) => {
   const handleSubmitSuccess = () => {
     onClose();
   };
@@ -46,7 +48,7 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
           padding: 2,
         }}
       >
-        Create New Event
+        Update New Event
         <IconButton aria-label="close" onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
@@ -54,10 +56,10 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
 
       <StyledDialogContent>
         {/* onSubmitSuccess={handleSubmitSuccess} */}
-        <CreateEventForm />
+        <UpdateEventForm event={event} />
       </StyledDialogContent>
-
-      {/* <DialogActions
+{/* 
+      <DialogActions
         sx={{
           padding: 2,
           borderTop: 1,
@@ -69,15 +71,15 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
         </Button>
         <Button
           type="submit"
-          form="create-event-form" // This will connect to the form's id
+          form="Update-event-form" // This will connect to the form's id
           variant="contained"
           color="primary"
         >
-          Create Event
+          Update Event
         </Button>
       </DialogActions> */}
     </StyledDialog>
   );
 };
 
-export default CreateEventModal;
+export default UpdateEventModal;

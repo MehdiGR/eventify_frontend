@@ -1,5 +1,5 @@
 import { RHFTextField } from '@common/components/lib/react-hook-form';
-import ImageUploadField from '@modules/events/components/partials/ImageUploadField';
+import ImageUploadField from '@modules/events/components/ImageUploadField';
 import { Grid } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';

@@ -21,8 +21,8 @@ export interface UpdateOneInput {
   description?: string;
   start_date?: string; // ISO date string
   end_date?: string; // ISO date string
-  location: string;
-  max_participants: number;
+  location?: string;
+  max_participants?: number;
   image?: string | null; // Added to match Event interface
   // No organizer_id here, which is correct as we don't want to allow changing the organizer
 }

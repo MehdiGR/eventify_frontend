@@ -15,7 +15,7 @@ import Labels from '@common/defs/labels';
 import { useTranslation } from 'react-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import EditEventForm from '@modules/events/components/partials/EditEventForm';
-import EventDetails from '@modules/events/components/partials/EventDetails';
+import EventDetail from '@modules/events/components/partials/EventRegistrationForm';
 
 const EventsPage: NextPage = () => {
   const router = useRouter();
@@ -52,15 +52,15 @@ const EventsPage: NextPage = () => {
 
   return (
     <>
-      <PageHeader title={t(`event:${Labels.Events.EditOne}`)} />
-      <CustomBreadcrumbs
+      {/* <PageHeader title={t(`event:${Labels.Events.}`)} /> */}
+      {/* <CustomBreadcrumbs
         links={[
           { name: t('common:dashboard'), href: Routes.Common.Home },
           { name: t(`event:${Labels.Events.Items}`), href: Routes.Events.ReadAll },
           { name: item ? item.email : t(`event:${Labels.Events.EditOne}`) },
         ]}
-      />
-      {item && <EventDetails event={item} />}
+      /> */}
+      {item && <EventDetail event={item} />}
     </>
   );
 };
@@ -74,17 +74,17 @@ export const getStaticProps = async ({ locale }: { locale: string }) => ({
     ...(await serverSideTranslations(locale, ['topbar', 'footer', 'leftbar', 'event', 'common'])),
   },
 });
-
-export default withAuth(
-  withPermissions(EventsPage, {
-    requiredPermissions: {
-      entity: Namespaces.Events,
-      action: CRUD_ACTION.UPDATE,
-    },
-    redirectUrl: Routes.Permissions.Forbidden,
-  }),
-  {
-    mode: AUTH_MODE.LOGGED_IN,
-    redirectUrl: Routes.Auth.Login,
-  }
-);
+export default EventsPage;
+// export default withAuth(
+//   withPermissions(EventsPage, {
+//     requiredPermissions: {
+//       entity: Namespaces.Events,
+//       action: CRUD_ACTION.UPDATE,
+//     },
+//     redirectUrl: Routes.Permissions.Forbidden,
+//   }),
+//   {
+//     mode: AUTH_MODE.LOGGED_IN,
+//     redirectUrl: Routes.Auth.Login,
+//   }
+// );

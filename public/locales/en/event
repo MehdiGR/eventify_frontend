@@ -1,0 +1,13 @@
+{
+  "common": {
+    "create_new_one": "Create a new event",
+    "edit_one": "Edit the event",
+    "items": "events",
+    "new_one": "New event",
+    "read_all": "event list"
+  },
+  "action": {
+    "viewParticipate": "Show the participants"
+  }
+
+}

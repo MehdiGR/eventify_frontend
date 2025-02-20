@@ -21,7 +21,7 @@ import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useState } from 'react';
 import useAuth from '@modules/auth/hooks/api/useAuth';
-import ImageUploadField from '@modules/events/components/partials/ImageUploadField';
+import ImageUploadField from '@modules/events/components/ImageUploadField';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
@@ -89,9 +89,9 @@ const UpdateEventForm: React.FC<UpdateEventFormProps> = ({ event }) => {
       setImageUploadError(null);
 
       let imageUrl = event.image;
-
-      if (data.image instanceof File) {
-        const uploadResponse = await uploadImage({ file: data.image });
+      let image = data.image as any;
+      if (image instanceof File) {
+        const uploadResponse = await uploadImage({ file: image });
         if (!uploadResponse.success) {
           setImageUploadError("Échec du téléchargement de l'image");
           throw new Error("Échec du téléchargement de l'image");
@@ -246,19 +246,4 @@ const UpdateEventForm: React.FC<UpdateEventFormProps> = ({ event }) => {
     </FormProvider>
   );
 };
-
-// UpdateEventForm.propTypes = {
-//   event: PropTypes.shape({
-//     id: PropTypes.number.isRequired,
-//     name: PropTypes.string.isRequired,
-//     description: PropTypes.string,
-//     start_date: PropTypes.string.isRequired,
-//     end_date: PropTypes.string.isRequired,
-//     location: PropTypes.string.isRequired,
-//     max_participants: PropTypes.number.isRequired,
-//     image: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(File)]),
-//     organizer_id: PropTypes.number.isRequired,
-//   }).isRequired,
-// };
-
 export default UpdateEventForm;

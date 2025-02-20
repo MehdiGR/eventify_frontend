@@ -1,74 +1,81 @@
-import HomeIcon from '@mui/icons-material/Home';
-import LogoutIcon from '@mui/icons-material/Logout';
-import TranslateIcon from '@mui/icons-material/Translate';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import EventIcon from '@mui/icons-material/Event'; // For events
-import CreateIcon from '@mui/icons-material/Create'; // For create event
-import DashboardIcon from '@mui/icons-material/Dashboard'; // For admin dashboard
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
+import useAuth from '@modules/auth/hooks/api/useAuth';
+import { setUserLanguage } from '@common/components/lib/utils/language';
 import Routes from '@common/defs/routes';
+
+// MUI Components
 import {
   AppBar,
   Box,
   Button,
-  Container,
   Drawer,
   IconButton,
   List,
   ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  styled,
   Menu,
   MenuItem,
+  Toolbar,
   Badge,
-  Chip,
+  ListItemIcon,
 } from '@mui/material';
+
+// Icons
+import HomeIcon from '@mui/icons-material/Home';
+import EventIcon from '@mui/icons-material/Event';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
+import TranslateIcon from '@mui/icons-material/Translate';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
-import useAuth from '@modules/auth/hooks/api/useAuth';
-import { useTranslation } from 'react-i18next';
-import { setUserLanguage } from '@common/components/lib/utils/language';
+import AddCircleOutlined from '@mui/icons-material/AddCircleOutlined';
+
+// Components
 import Notification from '@common/layout/Notification';
 import Logo from '@common/assets/svgs/Logo';
+import CreateEventModal from '@modules/events/components/CreateEventModal';
 
 const Topbar = () => {
   const { t } = useTranslation(['topbar']);
   const router = useRouter();
-  const { asPath } = router;
-  const [showDrawer, setShowDrawer] = useState(false);
   const { user, logout } = useAuth();
-
-  // State for dropdown menus
-  const [languageAnchor, setLanguageAnchor] = useState<null | HTMLElement>(null);
-  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
-
-  const toggleSidebar = () => setShowDrawer((oldValue) => !oldValue);
-
-  // Handle language dropdown
-  const handleLanguageOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setLanguageAnchor(event.currentTarget);
-  };
-
-  const handleLanguageClose = () => {
-    setLanguageAnchor(null);
-  };
-
-  // Handle user menu dropdown
-  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setUserMenuAnchor(event.currentTarget);
-  };
-
-  const handleUserMenuClose = () => {
-    setUserMenuAnchor(null);
-  };
-
-  // Get user role
-  // || 'visitor';
   const userRole = user?.rolesNames[0];
 
+  // State
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [languageAnchor, setLanguageAnchor] = useState(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+
+  // Handlers
+  const toggleDrawer = () => setShowDrawer((prev) => !prev);
+  // const navigate = (path) => router.push(path);
+
+  // Language menu handlers
+  const handleLanguageMenu = (event) => setLanguageAnchor(event.currentTarget);
+  const closeLanguageMenu = () => setLanguageAnchor(null);
+  const changeLanguage = (lang) => {
+    setUserLanguage(lang);
+    closeLanguageMenu();
+  };
+
+  // User menu handlers
+  const handleUserMenu = (event) => setUserMenuAnchor(event.currentTarget);
+  const closeUserMenu = () => setUserMenuAnchor(null);
+  // handle modal create event
+  const [isOpenCreateEventModal, setIsOpenCreateEventModal] = useState(false);
+
+  const openModalCreateEventModal = () => setIsOpenCreateEventModal(true);
+  const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
+  // Safe navigation handler that validates routes before navigation
+
+  const navigate = (path) => {
+    if (path && typeof path === 'string') {
+      router.push(path);
+    } else {
+      console.error('Invalid navigation path:', path);
+    }
+  };
   return (
     <AppBar
       position="sticky"
@@ -77,175 +84,251 @@ const Topbar = () => {
         backgroundColor: 'common.white',
       }}
     >
-      <Toolbar>
-        {/* Logo */}
-        <Box onClick={() => router.push(Routes.Common.Home)} sx={{ cursor: 'pointer' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        {/* Logo and Main Navigation */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Logo
             id="topbar-logo"
-            onClick={() => router.push(Routes.Common.Home)}
-            sx={{ cursor: 'pointer' }}
+            onClick={() => navigate(Routes.Common.Home)}
+            sx={{ cursor: 'pointer', mr: 6 }}
           />
+
+          {/* Desktop Navigation Links */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+            <Button onClick={() => navigate(Routes.Common.Home)} startIcon={<HomeIcon />}>
+              {t('topbar:home')}
+            </Button>
+            <Button onClick={() => navigate(Routes.Events.ReadAll)} startIcon={<EventIcon />}>
+              {t('topbar:events')}
+            </Button>
+
+            {/* Role-specific navigation */}
+            {userRole === 'participant' && (
+              <Button onClick={() => navigate(Routes.Events.MyEvents)} startIcon={<EventIcon />}>
+                {t('topbar:my_events')}
+              </Button>
+            )}
+
+            {userRole === 'organizer' && (
+              <Button
+                onClick={() => navigate(Routes.Organizer.Dashboard)}
+                startIcon={<DashboardIcon />}
+              >
+                {t('topbar:Dashboard')}
+              </Button>
+            )}
+
+            {userRole === 'admin' && (
+              <Button
+                onClick={() => navigate(Routes.Admin.Dashboard)}
+                startIcon={<DashboardIcon />}
+              >
+                {t('topbar:dashboard')}
+              </Button>
+            )}
+          </Box>
         </Box>
 
-        {/* Navigation Links */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, marginLeft: 2, gap: 1 }}>
-          <Button onClick={() => router.push(Routes.Common.Home)} startIcon={<HomeIcon />}>
-            {t('topbar:home')}
-          </Button>
-          <Button onClick={() => router.push(Routes.Events.ReadAll)} startIcon={<EventIcon />}>
-            {t('topbar:events')}
-          </Button>
-
-          {/* Organizer Links */}
+        {/* Right side controls */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {/* Create Event Button - Moved earlier in the right section */}
           {userRole === 'organizer' && (
-            <Button onClick={() => router.push(Routes.Events.Create)} startIcon={<CreateIcon />}>
-              {t('topbar:create_event')}
-            </Button>
+            <>
+              {' '}
+              <Button
+                variant="contained"
+                color="primary"
+                // onClick={() => navigate(Routes.Events.Create)}
+                onClick={() => openModalCreateEventModal()}
+                startIcon={<AddCircleOutlined />}
+                sx={{ mr: 2 }}
+              >
+                {t('topbar:create_event')}
+              </Button>
+              <CreateEventModal
+                open={isOpenCreateEventModal}
+                onClose={closeModalCreateEventModal}
+              />
+            </>
           )}
 
-          {/* Participant Links */}
-          {userRole === 'participant' && (
-            <Button onClick={() => router.push(Routes.Events.MyEvents)} startIcon={<EventIcon />}>
-              {t('topbar:my_events')}
-            </Button>
-          )}
-
-          {/* Admin Links */}
-          {userRole === 'admin' && (
-            <Button
-              onClick={() => router.push(Routes.Admin.Dashboard)}
-              startIcon={<DashboardIcon />}
-            >
-              {t('topbar:dashboard')}
-            </Button>
-          )}
-        </Box>
-
-        {/* Language Dropdown */}
-        <IconButton onClick={handleLanguageOpen} sx={{ marginLeft: 'auto' }}>
-          <TranslateIcon />
-        </IconButton>
-        <Menu
-          anchorEl={languageAnchor}
-          open={Boolean(languageAnchor)}
-          onClose={handleLanguageClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-          <MenuItem
-            onClick={() => {
-              setUserLanguage('fr');
-              handleLanguageClose();
-            }}
+          {/* Language Selector */}
+          <IconButton onClick={handleLanguageMenu} sx={{ mx: 1 }}>
+            <TranslateIcon />
+          </IconButton>
+          <Menu
+            anchorEl={languageAnchor}
+            open={Boolean(languageAnchor)}
+            onClose={closeLanguageMenu}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
-            🇫🇷 {t('topbar:language_french')}
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              setUserLanguage('en');
-              handleLanguageClose();
-            }}
-          >
-            🇺🇸 {t('topbar:language_english')}
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              setUserLanguage('es');
-              handleLanguageClose();
-            }}
-          >
-            🇪🇸 {t('topbar:language_spanish')}
-          </MenuItem>
-        </Menu>
+            <MenuItem onClick={() => changeLanguage('en')}>
+              🇺🇸 {t('topbar:language_english')}
+            </MenuItem>
+            <MenuItem onClick={() => changeLanguage('fr')}>
+              🇫🇷 {t('topbar:language_french')}
+            </MenuItem>
+            <MenuItem onClick={() => changeLanguage('es')}>
+              🇪🇸 {t('topbar:language_spanish')}
+            </MenuItem>
+          </Menu>
 
-        {/* Notification Icon */}
-        <Box sx={{ marginLeft: 2 }}>
-          <Notification />
-        </Box>
+          {/* Notification */}
+          <Box sx={{ mx: 1 }}>
+            <Notification />
+          </Box>
 
-        {/* User Menu Dropdown */}
-        {user ? (
-          <>
-            <IconButton onClick={handleUserMenuOpen}>
-              <Badge badgeContent={userRole} color="primary">
-                <AccountCircleIcon />
-              </Badge>
-            </IconButton>
-            <Menu
-              anchorEl={userMenuAnchor}
-              open={Boolean(userMenuAnchor)}
-              onClose={handleUserMenuClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-              <MenuItem onClick={() => router.push(Routes.Users.Me)}>
-                <ListItemIcon>
+          {/* User Menu */}
+          {user ? (
+            <>
+              <IconButton onClick={handleUserMenu} sx={{ ml: 1 }}>
+                <Badge badgeContent={userRole} color="primary">
                   <AccountCircleIcon />
-                </ListItemIcon>
-                {t('topbar:profile')}
-              </MenuItem>
-              {userRole === 'admin' && (
-                <MenuItem onClick={() => router.push(Routes.Admin.Dashboard)}>
+                </Badge>
+              </IconButton>
+              <Menu
+                anchorEl={userMenuAnchor}
+                open={Boolean(userMenuAnchor)}
+                onClose={closeUserMenu}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    navigate(Routes.Users.Me);
+                    closeUserMenu();
+                  }}
+                >
                   <ListItemIcon>
-                    <DashboardIcon />
+                    <AccountCircleIcon fontSize="small" />
                   </ListItemIcon>
-                  {t('topbar:dashboard')}
+                  {t('topbar:profile')}
                 </MenuItem>
-              )}
-              <MenuItem onClick={logout}>
-                <ListItemIcon>
-                  <LogoutIcon />
-                </ListItemIcon>
-                {t('topbar:logged.logout')}
-              </MenuItem>
-            </Menu>
-          </>
-        ) : (
-          <>
-            <Button onClick={() => router.push(Routes.Auth.Login)}>{t('topbar:login')}</Button>
-            <Button onClick={() => router.push(Routes.Auth.Register)}>
-              {t('topbar:register')}
-            </Button>
-          </>
-        )}
+                {userRole === 'admin' && (
+                  <MenuItem
+                    onClick={() => {
+                      navigate(Routes.Admin.Dashboard);
+                      closeUserMenu();
+                    }}
+                  >
+                    <ListItemIcon>
+                      <DashboardIcon fontSize="small" />
+                    </ListItemIcon>
+                    {t('topbar:dashboard')}
+                  </MenuItem>
+                )}
+                <MenuItem
+                  onClick={() => {
+                    logout();
+                    closeUserMenu();
+                  }}
+                >
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  {t('topbar:logged.logout')}
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button variant="outlined" onClick={() => navigate(Routes.Auth.Login)}>
+                {t('topbar:login')}
+              </Button>
+              <Button variant="contained" onClick={() => navigate(Routes.Auth.Register)}>
+                {t('topbar:register')}
+              </Button>
+            </Box>
+          )}
 
-        {/* Mobile Menu Toggle */}
-        <IconButton onClick={toggleSidebar} sx={{ display: { md: 'none' } }}>
-          <MenuIcon />
-        </IconButton>
+          {/* Mobile Menu Toggle */}
+          <IconButton onClick={toggleDrawer} sx={{ display: { xs: 'flex', md: 'none' }, ml: 1 }}>
+            <MenuIcon />
+          </IconButton>
+        </Box>
       </Toolbar>
 
       {/* Mobile Drawer */}
-      <Drawer anchor="left" open={showDrawer} onClose={() => setShowDrawer(false)}>
-        <List>
+      <Drawer anchor="left" open={showDrawer} onClose={toggleDrawer}>
+        <List sx={{ width: 250, pt: 2 }}>
           <ListItem>
-            <Button onClick={() => router.push(Routes.Common.Home)}>{t('topbar:home')}</Button>
+            <Button
+              fullWidth
+              onClick={() => {
+                navigate(Routes.Common.Home);
+                toggleDrawer();
+              }}
+              startIcon={<HomeIcon />}
+            >
+              {t('topbar:home')}
+            </Button>
           </ListItem>
           <ListItem>
-            <Button onClick={() => router.push(Routes.Events.ReadAll)}>{t('topbar:events')}</Button>
+            <Button
+              fullWidth
+              onClick={() => {
+                navigate(Routes.Events.ReadAll);
+                toggleDrawer();
+              }}
+              startIcon={<EventIcon />}
+            >
+              {t('topbar:events')}
+            </Button>
           </ListItem>
 
-          {/* Organizer Links */}
           {userRole === 'organizer' && (
-            <ListItem>
-              <Button onClick={() => router.push(Routes.Events.Create)} startIcon={<CreateIcon />}>
-                {t('topbar:create_event')}
-              </Button>
-            </ListItem>
+            <>
+              <ListItem>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    navigate(Routes.Events.Create);
+                    toggleDrawer();
+                  }}
+                  startIcon={<AddCircleOutlined />}
+                >
+                  {t('topbar:create_event')}
+                </Button>
+              </ListItem>
+              <ListItem>
+                <Button
+                  fullWidth
+                  onClick={() => {
+                    navigate(Routes.Organizer.Dashboard);
+                    toggleDrawer();
+                  }}
+                  startIcon={<DashboardIcon />}
+                >
+                  {t('topbar:Dashboard')}
+                </Button>
+              </ListItem>
+            </>
           )}
 
-          {/* Participant Links */}
           {userRole === 'participant' && (
             <ListItem>
-              <Button onClick={() => router.push(Routes.Events.MyEvents)} startIcon={<EventIcon />}>
+              <Button
+                fullWidth
+                onClick={() => {
+                  navigate(Routes.Events.MyEvents);
+                  toggleDrawer();
+                }}
+                startIcon={<EventIcon />}
+              >
                 {t('topbar:my_events')}
               </Button>
             </ListItem>
           )}
 
-          {/* Admin Links */}
           {userRole === 'admin' && (
             <ListItem>
               <Button
-                onClick={() => router.push(Routes.Admin.Dashboard)}
+                fullWidth
+                onClick={() => {
+                  navigate(Routes.Admin.Dashboard);
+                  toggleDrawer();
+                }}
                 startIcon={<DashboardIcon />}
               >
                 {t('topbar:dashboard')}
@@ -253,23 +336,56 @@ const Topbar = () => {
             </ListItem>
           )}
 
-          {/* User Links */}
           {user ? (
             <>
               <ListItem>
-                <Button onClick={() => router.push(Routes.Users.Me)}>{t('topbar:profile')}</Button>
+                <Button
+                  fullWidth
+                  onClick={() => {
+                    navigate(Routes.Users.Me);
+                    toggleDrawer();
+                  }}
+                  startIcon={<AccountCircleIcon />}
+                >
+                  {t('topbar:profile')}
+                </Button>
               </ListItem>
               <ListItem>
-                <Button onClick={() => logout()}>logoutss</Button>
+                <Button
+                  fullWidth
+                  onClick={() => {
+                    logout();
+                    toggleDrawer();
+                  }}
+                  startIcon={<LogoutIcon />}
+                >
+                  {t('topbar:logged.logout')}
+                </Button>
               </ListItem>
             </>
           ) : (
             <>
               <ListItem>
-                <Button onClick={() => router.push(Routes.Auth.Login)}>{t('topbar:login')}</Button>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={() => {
+                    navigate(Routes.Auth.Login);
+                    toggleDrawer();
+                  }}
+                >
+                  {t('topbar:login')}
+                </Button>
               </ListItem>
               <ListItem>
-                <Button onClick={() => router.push(Routes.Auth.Register)}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  onClick={() => {
+                    navigate(Routes.Auth.Register);
+                    toggleDrawer();
+                  }}
+                >
                   {t('topbar:register')}
                 </Button>
               </ListItem>

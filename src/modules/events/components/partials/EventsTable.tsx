@@ -1,5 +1,5 @@
 import Routes from '@common/defs/routes';
-import ItemsTable from '@common/components/partials/ItemsTable';
+import ItemsTable, { RowAction } from '@common/components/partials/ItemsTable';
 import { Event } from '@modules/events/defs/types';
 import useEvents, { CreateOneInput, UpdateOneInput } from '@modules/events/hooks/api/useEvents';
 import { GridColumns } from '@mui/x-data-grid';
@@ -8,8 +8,10 @@ import Namespaces from '@common/defs/namespaces';
 import { CrudRow } from '@common/defs/types';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+import { Edit, People, Visibility } from '@mui/icons-material';
+import ParticipantsModal from '@modules/events/components/partials/ParticipantsModal';
+import UpdateEventModal from '@modules/events/components/UpdateEventModal';
 
-// Define Row interface extending CrudRow like in Users example
 interface Row extends CrudRow {
   name: string;
   description: string;
@@ -52,23 +54,17 @@ const EventsTable = () => {
       width: 200,
       renderCell: (params) => dayjs(params.row.end_date).format('DD/MM/YYYY HH:mm'),
     },
-    {
-      field: 'createdAt',
-      headerName: t('event:list.created_at'),
-      type: 'dateTime',
-      flex: 1,
-      renderCell: (params) => dayjs(params.row.createdAt).format('DD/MM/YYYY HH:mm'),
-    },
   ];
 
-  // Add translation state handling like in Users example
   const [translatedColumns, setTranslatedColumns] = useState<GridColumns<Row>>(columns);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [isOpenUpdateEventModal, setIsOpenUpdateEventModal] = useState(false);
 
   useEffect(() => {
     setTranslatedColumns(columns);
   }, [t, i18n.language]);
 
-  // Simplify itemToRow to match Users example pattern
   const itemToRow = (item: Event): Row => {
     return {
       id: item.id,
@@ -77,22 +73,68 @@ const EventsTable = () => {
       start_date: item.start_date,
       end_date: item.end_date,
       createdAt: item.createdAt,
-      organizer_id: item.organizer_id,
+      organizer_id: item.organizer_id || 0,
     };
   };
 
+  const eventActions: RowAction<Event>[] = [
+    {
+      label: (id, item) => t('event:actions.edit'),
+      icon: (id, item) => <Edit fontSize="small" />,
+      onClick: (id, item) => {
+        setSelectedEvent(item);
+        setIsOpenUpdateEventModal(true);
+      },
+      enabled: (id, item) => true,
+    },
+    {
+      label: (id, item) => t('event:actions.viewDetails'),
+      icon: (id, item) => <Visibility fontSize="small" />,
+      onClick: (id, item) => {
+        setSelectedEvent(item);
+      },
+      enabled: (id, item) => true,
+    },
+    {
+      label: (id, item) => t('event:viewParticipants'),
+      icon: (id, item) => <People fontSize="small" />,
+      onClick: (id, item) => {
+        setSelectedEvent(item);
+        setShowParticipants(true);
+      },
+      enabled: (id, item) => true,
+    },
+  ];
+
   return (
-    <ItemsTable<Event, CreateOneInput, UpdateOneInput, Row>
-      namespace={Namespaces.Events}
-      routes={Routes.Events}
-      useItems={useEvents}
-      columns={translatedColumns}
-      itemToRow={itemToRow}
-      showEdit={() => true}
-      showDelete={() => true}
-      showLock
-      exportable
-    />
+    <>
+      <ItemsTable<Event, CreateOneInput, UpdateOneInput, Row>
+        namespace={Namespaces.Events}
+        routes={Routes.Events}
+        useItems={useEvents}
+        columns={translatedColumns}
+        itemToRow={itemToRow}
+        showEdit={() => false}
+        showDelete={() => true}
+        showLock
+        exportable
+        actions={eventActions}
+      />
+      {showParticipants && selectedEvent && (
+        <ParticipantsModal
+          event={{ id: selectedEvent.id, name: selectedEvent.name }}
+          open={showParticipants}
+          onClose={() => setShowParticipants(false)}
+        />
+      )}
+      {selectedEvent && (
+        <UpdateEventModal
+          event={selectedEvent}
+          open={isOpenUpdateEventModal}
+          onClose={() => setIsOpenUpdateEventModal(false)}
+        />
+      )}
+    </>
   );
 };
 

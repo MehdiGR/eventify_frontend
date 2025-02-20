@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 // components/HeroSlider.js
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Box, Paper, InputBase } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
@@ -56,14 +56,21 @@ const slides = [
     color: 'rgba(30,0,0,0.6)',
   },
 ];
-
-const HeroSlider = () => {
+interface HeroSliderProps {
+  onSearch: (query: string, location: string) => void;
+}
+const HeroSlider: React.FC<HeroSliderProps> = ({ onSearch }) => {
   const [tabValue, setTabValue] = useState(0);
-
-  const handleTabChange = (event: any, newValue: any) => {
+  // const [searchParams, setSearchParams] = useState({
+  //   query: '',
+  //   location: '',
+  // });
+  
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
+ 
   return (
     <Box sx={{ position: 'relative', height: { xs: '70vh', md: '80vh' }, overflow: 'hidden' }}>
       {/* Swiper component for the slider */}
@@ -85,8 +92,11 @@ const HeroSlider = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-
-      <SearchBar tabValue={tabValue} handleTabChange={handleTabChange} />
+      <SearchBar
+        tabValue={tabValue}
+        handleTabChange={handleTabChange}
+        onSearch={onSearch} // Pass through the search handler
+      />
     </Box>
   );
 };

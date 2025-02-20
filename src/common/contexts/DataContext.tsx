@@ -39,6 +39,16 @@ const DataProvider = ({ children }: Props) => {
       cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER!,
       forceTLS: true,
       encrypted: true, // Ensures a secure connection
+      // authEndpoint: process.env.NEXT_PUBLIC_API_URL + '/broadcasting/auth', // Adjust to your actual endpoint
+      // auth: {
+      //   headers: {
+      //     'X-CSRF-TOKEN':
+      //       typeof window !== 'undefined'
+      //         ? document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+      //         : '',
+      //     Accept: 'application/json',
+      //   },
+      // },
     });
 
     // console.log('Echo Instance:', echoInstance);

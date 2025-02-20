@@ -38,7 +38,7 @@ const EventEditPage: NextPage = () => {
       />
 
       {/* Form Component */}
-      <EventEditForm id={Number(id)} />
+      {/* <EventEditForm id={Number(id)} /> */}
     </>
   );
 };
