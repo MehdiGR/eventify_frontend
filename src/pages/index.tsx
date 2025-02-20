@@ -23,11 +23,7 @@ const Index: NextPage = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (loaded) {
-      stop();
-    } else {
-      start();
-    }
+    loaded ? stop() : start();
   }, [loaded]);
 
   useEffect(() => {
@@ -38,7 +34,6 @@ const Index: NextPage = () => {
     try {
       const { data } = await readAll();
       if (data?.items) {
-        // Filter out any potential null/undefined items
         setItems(data.items.filter((event) => event !== null));
       }
     } finally {
@@ -46,20 +41,18 @@ const Index: NextPage = () => {
     }
   };
 
+  // Fixed filtering logic based on Event interface
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
-      // Handle potential undefined values safely
-      const eventTitle = event.title?.toLowerCase() || '';
-      const eventDescription = event.description?.toLowerCase() || '';
-      const eventLocation = event.location?.toLowerCase() || '';
+      // Safely handle all possible undefined values
+      const searchQuery = searchParams.query.toLowerCase();
+      const searchLocation = searchParams.location.toLowerCase();
 
-      const matchesQuery =
-        eventTitle.includes(searchParams.query.toLowerCase()) ||
-        eventDescription.includes(searchParams.query.toLowerCase());
+      const nameMatch = event.name?.toLowerCase().includes(searchQuery) ?? false;
+      const descMatch = event.description?.toLowerCase().includes(searchQuery) ?? false;
+      const locMatch = event.location?.toLowerCase().includes(searchLocation) ?? false;
 
-      const matchesLocation = eventLocation.includes(searchParams.location.toLowerCase());
-
-      return matchesQuery && matchesLocation;
+      return (nameMatch || descMatch) && locMatch;
     });
   }, [events, searchParams.query, searchParams.location]);
 
@@ -70,7 +63,7 @@ const Index: NextPage = () => {
   return (
     <>
       <HeroSlider onSearch={handleSearch} />
-      {events && <EventsGrid events={filteredEvents} />}
+      <EventsGrid events={filteredEvents} />
     </>
   );
 };
