@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'next-i18next';
 import useAuth from '@modules/auth/hooks/api/useAuth';
 import { setUserLanguage } from '@common/components/lib/utils/language';
 import Routes from '@common/defs/routes';
@@ -38,7 +38,7 @@ import CreateEventModal from '@modules/events/components/CreateEventModal';
 import Image from 'next/image';
 
 const Topbar = () => {
-  const { t } = useTranslation(['topbar']);
+  const { t, i18n } = useTranslation(['topbar']);
   const router = useRouter();
   const { user, logout } = useAuth();
   const userRole = user?.rolesNames[0];
@@ -56,9 +56,16 @@ const Topbar = () => {
   const handleLanguageMenu = (event: React.MouseEvent<HTMLButtonElement>) =>
     setLanguageAnchor(event.currentTarget);
   const closeLanguageMenu = () => setLanguageAnchor(null);
-  const changeLanguage = (lang:string) => {
-    setUserLanguage(lang);
-    closeLanguageMenu();
+  const changeLanguage = async (lang: string) => {
+    try {
+      await i18n.changeLanguage(lang); //  updates translations
+      // Update the URL without reloading
+      router.push(router.asPath, router.asPath, { locale: lang, shallow: true });
+      // setUserLanguage(lang);
+      closeLanguageMenu();
+    } catch (error) {
+      console.error('Language change failed:', error);
+    }
   };
 
   // User menu handlers
@@ -71,7 +78,18 @@ const Topbar = () => {
   const openModalCreateEventModal = () => setIsOpenCreateEventModal(true);
   const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
   // Safe navigation handler that validates routes before navigation
-
+ const getLanguageFlag = (lang: string) => {
+   switch (lang) {
+     case 'en':
+       return '🇺🇸';
+     case 'fr':
+       return '🇫🇷';
+     case 'es':
+       return '🇪🇸';
+     default:
+       return '🌐';
+   }
+ };
   const navigate = (path:string) => {
     if (path && typeof path === 'string') {
       router.push(path);
@@ -176,23 +194,49 @@ const Topbar = () => {
           )}
 
           {/* Language Selector */}
-          <IconButton onClick={handleLanguageMenu} sx={{ mx: 1 }}>
+          <IconButton onClick={handleLanguageMenu} sx={{ mx: 1, position: 'relative' }}>
             <TranslateIcon />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 4,
+                right: 4,
+                fontSize: '0.8rem',
+                backgroundColor: 'white',
+                borderRadius: '50%',
+                width: '18px',
+                height: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 1,
+              }}
+            >
+              {getLanguageFlag(i18n.language)}
+            </Box>
           </IconButton>
+
+          {/* Language Menu (keep existing structure) */}
           <Menu
             anchorEl={languageAnchor}
             open={Boolean(languageAnchor)}
             onClose={closeLanguageMenu}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
-            <MenuItem onClick={() => changeLanguage('en')}>
-              🇺🇸 {t('topbar:language_english')}
+            <MenuItem onClick={() => changeLanguage('en')} selected={i18n.language === 'en'}>
+              <ListItemIcon sx={{ minWidth: '36px!important' }}>🇺🇸</ListItemIcon>
+              {t('language_english')}
+              {i18n.language === 'en' && <span style={{ marginLeft: 'auto' }}>✓</span>}
             </MenuItem>
-            <MenuItem onClick={() => changeLanguage('fr')}>
-              🇫🇷 {t('topbar:language_french')}
+            <MenuItem onClick={() => changeLanguage('fr')} selected={i18n.language === 'fr'}>
+              <ListItemIcon sx={{ minWidth: '36px!important' }}>🇫🇷</ListItemIcon>
+              {t('language_french')}
+              {i18n.language === 'fr' && <span style={{ marginLeft: 'auto' }}>✓</span>}
             </MenuItem>
-            <MenuItem onClick={() => changeLanguage('es')}>
-              🇪🇸 {t('topbar:language_spanish')}
+            <MenuItem onClick={() => changeLanguage('es')} selected={i18n.language === 'es'}>
+              <ListItemIcon sx={{ minWidth: '36px!important' }}>🇪🇸</ListItemIcon>
+              {t('language_spanish')}
+              {i18n.language === 'es' && <span style={{ marginLeft: 'auto' }}>✓</span>}
             </MenuItem>
           </Menu>
 
