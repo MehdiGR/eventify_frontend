@@ -37,8 +37,8 @@ const SearchInput = styled(InputBase)(({ theme }) => ({
 
 const searchConfig: SearchConfig = {
   0: { keys: ['name', 'description'], placeholder: 'Search for events' },
-  1: { keys: ['venueName', 'address'], placeholder: 'Search for venues' },
-  2: { keys: ['performerName', 'genre'], placeholder: 'Search for performers' },
+  // 1: { keys: ['venueName', 'address'], placeholder: 'Search for venues' },
+  // 2: { keys: ['performerName', 'genre'], placeholder: 'Search for performers' },
 };
 
 export default function SearchBar({ tabValue, handleTabChange, onSearch }: SearchBarProps) {
