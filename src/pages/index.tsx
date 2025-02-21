@@ -7,6 +7,7 @@ import { useState, useMemo, useEffect } from 'react';
 import useEvents from '@modules/events/hooks/api/useEvents';
 import useProgressBar from '@common/hooks/useProgressBar';
 import { Event } from '@modules/events/defs/types';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const Index: NextPage = () => {
   const { t } = useTranslation(['home']);
@@ -65,5 +66,9 @@ const Index: NextPage = () => {
     </>
   );
 };
-
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
+  props: {
+    ...(await serverSideTranslations(locale, ['topbar', 'footer', 'leftbar', 'event', 'common'])),
+  },
+});
 export default Index;
