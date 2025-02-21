@@ -35,6 +35,7 @@ import AddCircleOutlined from '@mui/icons-material/AddCircleOutlined';
 import Notification from '@common/layout/Notification';
 import Logo from '@common/assets/svgs/Logo';
 import CreateEventModal from '@modules/events/components/CreateEventModal';
+import Image from 'next/image';
 
 const Topbar = () => {
   const { t } = useTranslation(['topbar']);
@@ -44,23 +45,25 @@ const Topbar = () => {
 
   // State
   const [showDrawer, setShowDrawer] = useState(false);
-  const [languageAnchor, setLanguageAnchor] = useState(null);
-  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+  const [languageAnchor, setLanguageAnchor] = useState<HTMLButtonElement | null>(null);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLButtonElement | null>(null);
 
   // Handlers
   const toggleDrawer = () => setShowDrawer((prev) => !prev);
   // const navigate = (path) => router.push(path);
 
   // Language menu handlers
-  const handleLanguageMenu = (event) => setLanguageAnchor(event.currentTarget);
+  const handleLanguageMenu = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setLanguageAnchor(event.currentTarget);
   const closeLanguageMenu = () => setLanguageAnchor(null);
-  const changeLanguage = (lang) => {
+  const changeLanguage = (lang:string) => {
     setUserLanguage(lang);
     closeLanguageMenu();
   };
 
   // User menu handlers
-  const handleUserMenu = (event) => setUserMenuAnchor(event.currentTarget);
+  const handleUserMenu = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setUserMenuAnchor(event.currentTarget);
   const closeUserMenu = () => setUserMenuAnchor(null);
   // handle modal create event
   const [isOpenCreateEventModal, setIsOpenCreateEventModal] = useState(false);
@@ -69,7 +72,7 @@ const Topbar = () => {
   const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
   // Safe navigation handler that validates routes before navigation
 
-  const navigate = (path) => {
+  const navigate = (path:string) => {
     if (path && typeof path === 'string') {
       router.push(path);
     } else {
@@ -87,12 +90,32 @@ const Topbar = () => {
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         {/* Logo and Main Navigation */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Logo
+          {/* <Logo
             id="topbar-logo"
             onClick={() => navigate(Routes.Common.Home)}
             sx={{ cursor: 'pointer', mr: 6 }}
-          />
+          /> */}
 
+          <Box
+            sx={{
+              cursor: 'pointer',
+              mr: 6,
+              width: 140,
+              height: 60,
+              position: 'relative',
+            }}
+            onClick={() => navigate(Routes.Common.Home)}
+          >
+            <Image
+              id="topbar-logo"
+              src="/logo.png"
+              alt="Company Logo"
+              fill
+              style={{ objectFit: 'contain' }}
+              priority
+              sizes="60"
+            />
+          </Box>
           {/* Desktop Navigation Links */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
             <Button onClick={() => navigate(Routes.Common.Home)} startIcon={<HomeIcon />}>
