@@ -61,15 +61,15 @@ export default function SearchBar({ tabValue, handleTabChange, onSearch }: Searc
       sx={{ position: 'absolute', bottom: '10%', left: 0, right: 0, zIndex: 10 }}
     >
       <SearchBox>
-        <Tabs
+        {/* <Tabs
           value={tabValue}
           onChange={handleTabChange}
           sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
         >
-          <Tab label="Events" />
+          <Tab label="" />
           <Tab label="Venues" />
           <Tab label="Performers" />
-        </Tabs>
+        </Tabs> */}
 
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
           <Box

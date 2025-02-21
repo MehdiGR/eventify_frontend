@@ -1,9 +1,7 @@
-import PageHeader from '@common/components/lib/partials/PageHeader';
-import useAuth from '@modules/auth/hooks/api/useAuth';
+
 import EventsGrid from '@modules/events/components/partials/EventGrid';
 import HeroSlider from '@modules/home/components/partials/Hero';
 import { NextPage } from 'next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect } from 'react';
 import useEvents from '@modules/events/hooks/api/useEvents';
