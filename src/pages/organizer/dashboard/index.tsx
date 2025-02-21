@@ -117,7 +117,7 @@ export default withAuth(
   withPermissions(OrganizersPage, {
     requiredPermissions: {
       entity: Namespaces.Events,
-      action: CRUD_ACTION.READ,
+      action: CRUD_ACTION.UPDATE,
     },
     redirectUrl: Routes.Permissions.Forbidden,
   }),
