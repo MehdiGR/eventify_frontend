@@ -30,33 +30,34 @@ const OrganizersPage: NextPage = () => {
     totalParticipants: 0,
     revenue: 0,
   });
-  const [statsLoading, setStatsLoading] = useState(true);
+  // const [statsLoading, setStatsLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(false);
 const [isOpenCreateEventModal, setIsOpenCreateEventModal] = useState(false);
 const openModalCreateEventModal = () => setIsOpenCreateEventModal(true);
 const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
   // Fetch stats independently
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetchApi<Stats>('events/organizer/stats');
-        if (response.success) {
-         setStats({
-           totalEvents: response.data.total_events,
-           upcomingEvents: response.data.upcoming_events,
-           totalParticipants: response.data.total_participants,
-           revenue: response.data.revenue || 0,
-           // Add trends here when backend implements them
-         });
-        }
-      } catch (error) {
-        console.error('Error loading stats:', error);
-      } finally {
-        setStatsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchStats = async () => {
+  //     try {
+  //       const response = await fetchApi<Stats>('events/organizer/stats');
+  //       if (response.success) {
+  //        setStats({
+  //          totalEvents: response.data.total_events,
+  //          upcomingEvents: response.data.upcoming_events,
+  //          totalParticipants: response.data.total_participants,
+  //          revenue: response.data.revenue || 0,
+  //          // Add trends here when backend implements them
+  //        });
+  //       }
+  //     } catch (error) {
+  //       console.error('Error loading stats:', error);
+  //     } finally {
+  //       setStatsLoading(false);
+  //     }
+  //   };
 
-    fetchStats();
-  }, []);
+  //   fetchStats();
+  // }, []);
 
   return (
     <>
