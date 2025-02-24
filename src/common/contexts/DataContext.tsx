@@ -21,14 +21,17 @@ interface Props {
 }
 
 export const DataContext = createContext<UseData | undefined>(undefined!);
-
+declare global {
+  interface Window {
+    Pusher: typeof Pusher;
+  }
+}
 const DataProvider = ({ children }: Props) => {
   const [echo, setEcho] = useState<any>(null);
 
   // Ensure Pusher is globally available before initializing Echo
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      //@ts-expect-error
       window.Pusher = Pusher;
     }
 
