@@ -54,8 +54,11 @@ const schema = Yup.object().shape({
     }),
   organizer_id: Yup.number().required().positive().integer(),
 });
+interface CreateEventFormProps {
+  onSubmitSuccess?: () => void;
+}
 
-const CreateEventForm = () => {
+const CreateEventForm = ({ onSubmitSuccess }: CreateEventFormProps) => {
   const { t } = useTranslation(['event', 'common']);
   const { user } = useAuth();
   const methods = useForm<CreateOneInput>({
@@ -103,11 +106,14 @@ const CreateEventForm = () => {
         end_date: dayjs(data.end_date).format('YYYY-MM-DD HH:mm:ss'),
         image: imageUrl,
       };
-      console.log(formattedData,"formatdata")
+      console.log(formattedData, 'formatdata');
       // return
       const createResponse = await createEvent(formattedData);
       if (!createResponse.success) {
         throw new Error(createResponse.errors?.[0] || "Échec de la création de l'événement");
+      }
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
       }
       // router.push(Routes.Events.ReadAll);
     } catch (error: any) {
@@ -220,23 +226,7 @@ const CreateEventForm = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 2 }}>
-                <Divider sx={{ mb: 3 }} />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  size="large"
-                  sx={{ py: 1.5 }}
-                >
-                  {methods.formState.isSubmitting ? (
-                    <CircularProgress size={24} color="inherit" />
-                  ) : (
-                    "Créer l'événement"
-                  )}
-                </Button>
-              </Grid>
+             
             </Grid>
           </form>
         </Paper>

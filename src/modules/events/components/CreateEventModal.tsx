@@ -29,6 +29,8 @@ interface CreateEventModalProps {
   onClose: () => void;
 }
 
+
+
 const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
   const handleSubmitSuccess = () => {
     onClose();
@@ -54,10 +56,10 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
 
       <StyledDialogContent>
         {/* onSubmitSuccess={handleSubmitSuccess} */}
-        <CreateEventForm />
+        <CreateEventForm onSubmitSuccess={onClose} />
       </StyledDialogContent>
 
-      {/* <DialogActions
+      <DialogActions
         sx={{
           padding: 2,
           borderTop: 1,
@@ -69,13 +71,13 @@ const CreateEventModal = ({ open, onClose }: CreateEventModalProps) => {
         </Button>
         <Button
           type="submit"
-          form="create-event-form" // This will connect to the form's id
+          form="create-event-form" // Connects to the form's id
           variant="contained"
           color="primary"
         >
           Create Event
         </Button>
-      </DialogActions> */}
+      </DialogActions>
     </StyledDialog>
   );
 };
