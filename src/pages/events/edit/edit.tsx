@@ -75,15 +75,15 @@ useEffect(() => {
   );
 };
 
-export const getStaticPaths = () => {
-  return { paths: [], fallback: 'blocking' };
-};
+// export const getStaticPaths = () => {
+//   return { paths: [], fallback: 'blocking' };
+// };
 
-export const getStaticProps = async ({ locale }: { locale: string }) => ({
-  props: {
-    ...(await serverSideTranslations(locale, ['topbar', 'footer', 'leftbar', 'event', 'common'])),
-  },
-});
+// export const getStaticProps = async ({ locale }: { locale: string }) => ({
+//   props: {
+//     ...(await serverSideTranslations(locale, ['topbar', 'footer', 'leftbar', 'event', 'common'])),
+//   },
+// });
 
 export default withAuth(
   withPermissions(EventsPage, {
@@ -98,3 +98,4 @@ export default withAuth(
     redirectUrl: Routes.Auth.Login,
   }
 );
+

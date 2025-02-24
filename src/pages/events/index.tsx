@@ -59,7 +59,7 @@ const closeModal = () => setIsOpen(false);
         Link
       </Button> */}
      
-      <EventsGrid />
+      { items && <EventsGrid events={items}/>}
     </>
   );
 };

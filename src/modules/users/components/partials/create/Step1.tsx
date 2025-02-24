@@ -22,7 +22,7 @@ interface CreateUserStep1Props extends FormStepProps {}
 interface CurrentFormStepRef extends ParentCurrentFormStepRef {
   submit: () => Promise<FormSubmitResponse<CreateOneInput>>;
 }
-
+//@ts-ignore
 const CreateUserStep1 = forwardRef((props: CreateUserStep1Props, ref: Ref<FormStepRef>) => {
   const { next, data } = props;
   const formRef = useRef<CurrentFormStepRef>();
