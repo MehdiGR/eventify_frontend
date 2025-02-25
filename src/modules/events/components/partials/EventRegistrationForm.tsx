@@ -107,8 +107,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event }) => {
 
             <Tabs value={value} onChange={handleChange} sx={{ mb: 3 }}>
               <Tab label="About" />
-              <Tab label="Schedule" />
-              <Tab label="FAQs" />
+              {/* <Tab label="Schedule" /> */}
               <Tab label="Organizer" />
             </Tabs>
 
@@ -124,37 +123,21 @@ const EventDetail: React.FC<EventDetailProps> = ({ event }) => {
                 </>
               )}
 
-              {value === 1 && event.schedule && (
+              {/* {value === 1 && event.schedule && (
                 <Box>
                   <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
                     Event Schedule
                   </Typography>
-                  {event.schedule.map((item, index) => (
+                  {event.schedule.map((item:Event, index:number) => (
                     <Box key={index} sx={{ mb: 2 }}>
                       <Typography fontWeight={500}>{item.time}</Typography>
                       <Typography color="text.secondary">{item.activity}</Typography>
                     </Box>
                   ))}
                 </Box>
-              )}
+              )} */}
 
-              {value === 2 && event.faqs && (
-                <Box>
-                  <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-                    Frequently Asked Questions
-                  </Typography>
-                  {event.faqs.map((faq, index) => (
-                    <Accordion key={index}>
-                      <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography fontWeight={500}>{faq.question}</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Typography color="text.secondary">{faq.answer}</Typography>
-                      </AccordionDetails>
-                    </Accordion>
-                  ))}
-                </Box>
-              )}
+              
 
               {value === 3 && event.organizer && (
                 <Box>
@@ -201,7 +184,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event }) => {
                 </Typography>
                 •
                 <Typography variant="body2" color="text.secondary">
-                  {event.max_participants - event.registeredParticipants} spots left
+                  {event?.max_participants  && (event?.max_participants - event.registeredParticipants)} spots left
                 </Typography>
               </Box>
 
