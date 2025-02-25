@@ -67,7 +67,6 @@ const Topbar = () => {
       console.error('Language change failed:', error);
     }
   };
-
   // User menu handlers
   const handleUserMenu = (event: React.MouseEvent<HTMLButtonElement>) =>
     setUserMenuAnchor(event.currentTarget);

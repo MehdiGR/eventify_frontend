@@ -11,9 +11,9 @@ const RegisterPage: NextPage = () => {
     </>
   );
 };
-export const getStaticProps = async ({ locale }: { locale: string })  => ({
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
   props: {
-    ...(await serverSideTranslations(locale, ['topbar','sign-in', 'common'])),
+    ...(await serverSideTranslations(locale, ['topbar', 'sign-in', 'common', 'auth', 'sign-up'])),
   },
 });
 export default withAuth(RegisterPage, {
