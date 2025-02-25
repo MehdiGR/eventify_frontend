@@ -8,6 +8,7 @@ import useEvents from '@modules/events/hooks/api/useEvents';
 import useProgressBar from '@common/hooks/useProgressBar';
 import { Event } from '@modules/events/defs/types';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import LoadingPage from '@common/components/lib/feedbacks/LoadingPage';
 
 const Index: NextPage = () => {
   const { t } = useTranslation(['home']);
@@ -19,7 +20,7 @@ const Index: NextPage = () => {
   const [events, setItems] = useState<Event[]>([]);
   const { readAll } = useEvents();
   const { start, stop } = useProgressBar();
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(true);
 
   useEffect(() => {
     loaded ? stop() : start();
@@ -36,7 +37,7 @@ const Index: NextPage = () => {
         setItems(data.items.filter((event) => event !== null));
       }
     } finally {
-      setLoaded(true);
+      setLoaded(false);
     }
   };
 
@@ -61,8 +62,14 @@ const Index: NextPage = () => {
 
   return (
     <>
-      <HeroSlider onSearch={handleSearch} />
-      <EventsGrid events={filteredEvents} />
+      {loaded ? (
+        <LoadingPage />
+      ) : (
+        <>
+          <HeroSlider onSearch={handleSearch} />
+          <EventsGrid events={filteredEvents} />
+        </>
+      )}
     </>
   );
 };

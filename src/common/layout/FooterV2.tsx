@@ -1,249 +1,177 @@
-import Routes from '@common/defs/routes';
-import FacebookRoundedIcon from '@mui/icons-material/FacebookRounded';
-import { useTheme } from '@mui/material/styles';
+import { Box, Grid, Link, TextField, Typography, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import TwitterIcon from '@mui/icons-material/Twitter';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import { Divider, Link, List, ListItem, ListItemText, useMediaQuery } from '@mui/material';
-import { alpha, Box } from '@mui/system';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { useRouter } from 'next/router';
-import Logo from '@common/assets/svgs/Logo';
-import { useTranslation } from 'react-i18next';
+import Image from 'next/image';
 
-interface FooterItemProps {
-  label: string;
-  link: string;
-}
-interface SocialMedia {
-  label: string;
-  icon: JSX.Element;
-  link: string;
-}
-
-const Footer = () => {
+const EventFooter = () => {
   const { t } = useTranslation(['footer']);
-
-  const footerItems: FooterItemProps[] = [
-    {
-      label: t('footer:privacy_cookies'),
-      link: Routes.Common.Home,
-    },
-    {
-      label: t('footer:terms_conditions'),
-      link: Routes.Common.Home,
-    },
-  ];
-  const socialMedias: SocialMedia[] = [
-    {
-      label: 'Facebook',
-      icon: <FacebookRoundedIcon sx={{ fontSize: '2rem' }} />,
-      link: '#',
-    },
-    {
-      label: 'Instagram',
-      icon: <InstagramIcon sx={{ fontSize: '2rem' }} />,
-      link: '#',
-    },
-    {
-      label: 'Twitter',
-      icon: <TwitterIcon sx={{ fontSize: '2rem' }} />,
-      link: '#',
-    },
-    {
-      label: 'YouTube',
-      icon: <YouTubeIcon sx={{ fontSize: '2rem' }} />,
-      link: '#',
-    },
-  ];
-  const isFooterItemsEven = footerItems.length % 2 === 0;
+  const theme = useTheme();
   const router = useRouter();
-  const currenttheme = useTheme();
-  const mdScreen = useMediaQuery(currenttheme.breakpoints.down('md'));
+
+  const currentYear = new Date().getFullYear();
+
   return (
     <Box
       component="footer"
       sx={{
-        position: 'relative',
-        zIndex: 100,
-        backgroundColor: 'primary.darker',
         width: '100%',
-        paddingY: { xs: 2, md: 6 },
-        marginTop: 10,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        fontSize: '15px',
+        backgroundColor: theme.palette.primary.darker,
         color: 'common.white',
+        py: 8,
+        mt: 'auto',
       }}
     >
-      {(!isFooterItemsEven || mdScreen) && (
-        <Box sx={{ marginBottom: 2 }}>
-          <Logo id="responsive-footer-logo" />
-        </Box>
-      )}
-      <Box sx={{ display: 'flex', marginBottom: { xs: 0, md: 1.7 } }}>
-        {!isFooterItemsEven || mdScreen ? (
-          <List
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              flexDirection: { xs: 'column', md: 'row' },
-              gap: { xs: 2, md: 0 },
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {footerItems.map((item, index) => {
-              return (
-                <ListItem
-                  key={index}
-                  onClick={() => router.push(item.link)}
-                  sx={{
-                    cursor: 'pointer',
-                    width: 'fit-content',
-                    borderLeft: { xs: 0, md: 1 },
-                    paddingY: 0,
-                    borderLeftColor: 'primary.lighter',
-                    '&:hover': {
-                      textDecoration: 'underline',
-                    },
-                    ...(footerItems.length === index + 1 && {
-                      borderRight: { xs: 0, md: 1 },
-                      borderRightColor: 'primary.lighter',
-                    }),
-                  }}
-                >
-                  <ListItemText sx={{ marginY: 0 }}>{item.label}</ListItemText>
-                </ListItem>
-              );
-            })}
-            <Divider
-              sx={{
-                marginY: { xs: 2, md: 0 },
-                display: { xs: 'block', md: 'none' },
-                borderColor: (theme) => alpha(theme.palette.primary.lighter, 0.4),
-                borderWidth: 0.5,
-                width: '100%',
-              }}
-            />
-          </List>
-        ) : (
-          <>
-            <List
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {footerItems.slice(0, Math.ceil(footerItems.length / 2)).map((item, index) => {
-                return (
-                  <ListItem
-                    key={index}
-                    onClick={() => router.push(item.link)}
-                    sx={{
-                      cursor: 'pointer',
-                      width: 'fit-content',
-                      borderLeft: 1,
-                      paddingY: 0,
-                      borderLeftColor: 'primary.lighter',
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      },
-                      ...(footerItems.length / 2 === index + 1 && {
-                        borderRight: 1,
-                        borderRightColor: 'primary.lighter',
-                      }),
-                    }}
-                  >
-                    <ListItemText sx={{ marginY: 0 }}>{item.label}</ListItemText>
-                  </ListItem>
-                );
-              })}
-            </List>
+      <Grid container spacing={4} sx={{ maxWidth: 'lg', mx: 'auto', px: 2 }}>
+        {/* Brand Column */}
+        <Grid item xs={12} md={4}>
+          <Box sx={{ mb: 2 }}>
             <Box
               sx={{
-                paddingX: 4,
+                cursor: 'pointer',
+                mr: 6,
+                width: 140,
+                height: 60,
+                position: 'relative',
               }}
             >
-              <Logo id="footer-logo" />
+              <Image
+                id="topbar-logo"
+                src="/logo.png"
+                alt="Company Logo"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+                sizes="60"
+              />
             </Box>
-            <List
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+          </Box>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            {t('footer:tagline')}
+          </Typography>
+        </Grid>
+
+        {/* Quick Links */}
+        <Grid item xs={6} md={2}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {t('footer:discover')}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Link
+              href="#"
+              onClick={() => router.push('/events')}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
             >
-              {footerItems.slice(Math.ceil(footerItems.length / 2)).map((item, index) => {
-                return (
-                  <ListItem
-                    key={index}
-                    onClick={() => router.push(item.link)}
-                    sx={{
-                      cursor: 'pointer',
-                      width: 'fit-content',
-                      borderLeft: 1,
-                      paddingY: 0,
-                      borderLeftColor: 'primary.lighter',
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      },
-                      ...(footerItems.length / 2 === index + 1 && {
-                        borderRight: 1,
-                        borderRightColor: 'primary.lighter',
-                      }),
-                    }}
-                  >
-                    <ListItemText sx={{ marginY: 0 }}>{item.label}</ListItemText>
-                  </ListItem>
-                );
-              })}
-            </List>
-          </>
-        )}
-      </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 1.7,
-        }}
-      >
-        {socialMedias.map((socialMedia, socialMediaIndex) => (
-          <Link
-            key={socialMediaIndex}
-            href={socialMedia.link}
-            target="_blank"
-            rel="noreferrer"
+              {t('footer:all_events')}
+            </Link>
+            <Link
+              href="#"
+              onClick={() => router.push('/categories')}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              {t('footer:categories')}
+            </Link>
+            <Link
+              href="#"
+              onClick={() => router.push('/trending')}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              {t('footer:trending')}
+            </Link>
+          </Box>
+        </Grid>
+
+        {/* Organize */}
+        <Grid item xs={6} md={2}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {t('footer:organize')}
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Link
+              href="#"
+              onClick={() => router.push('/create-event')}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              {t('footer:create_event')}
+            </Link>
+            <Link
+              href="#"
+              onClick={() => router.push('/pricing')}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              {t('footer:pricing')}
+            </Link>
+            <Link
+              href="#"
+              onClick={() => router.push('/organizer')}
+              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              {t('footer:organizer_portal')}
+            </Link>
+          </Box>
+        </Grid>
+
+        {/* Newsletter */}
+        <Grid item xs={12} md={4}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {t('footer:stay_updated')}
+          </Typography>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder={t('footer:email_placeholder')}
             sx={{
-              color: 'common.white',
-              borderRadius: 2,
-              padding: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all, 0.15s',
-              cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: 'action.hover',
+              mb: 2,
+              '& .MuiOutlinedInput-root': {
+                color: 'common.white',
+                '& fieldset': { borderColor: 'common.white' },
+                '&:hover fieldset': { borderColor: 'primary.light' },
               },
             }}
+          />
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <FacebookIcon sx={{ color: '#1877F2', cursor: 'pointer' }} />
+            <InstagramIcon sx={{ color: '#E1306C', cursor: 'pointer' }} />
+            <TwitterIcon sx={{ color: '#1DA1F2', cursor: 'pointer' }} />
+            <LinkedInIcon sx={{ color: '#0077B5', cursor: 'pointer' }} />
+          </Box>
+        </Grid>
+
+        {/* Bottom Bar */}
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              pt: 3,
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              gap: 2,
+            }}
           >
-            {socialMedia.icon}
-          </Link>
-        ))}
-      </Box>
-      <Box
-        sx={{
-          fontSize: '13px',
-        }}
-      >
-        {t('footer:copyright')}
-      </Box>
+            <Typography variant="body2">
+              © {currentYear} {t('footer:all_rights_reserved')}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 3 }}>
+              <Link href="#" sx={{ cursor: 'pointer' }}>
+                {t('footer:privacy')}
+              </Link>
+              <Link href="#" sx={{ cursor: 'pointer' }}>
+                {t('footer:terms')}
+              </Link>
+              <Link href="#" sx={{ cursor: 'pointer' }}>
+                {t('footer:cookies')}
+              </Link>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
 
-export default Footer;
+export default EventFooter;

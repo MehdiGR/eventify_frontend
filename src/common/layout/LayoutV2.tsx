@@ -115,16 +115,16 @@ const Layout = (props: ILayoutProps) => {
               </Container>
             </Box>
             <Box
-              sx={{
-                marginLeft: openLeftbar ? LEFTBAR_WIDTH + 'px' : 0,
-                maxWidth: openLeftbar ? `calc(100% - ${LEFTBAR_WIDTH}px)` : '100%',
-                transition: theme.transitions.create(['all'], {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.leavingScreen,
-                }),
-              }}
+              // sx={{
+              //   marginLeft: openLeftbar ? LEFTBAR_WIDTH + 'px' : 0,
+              //   maxWidth: openLeftbar ? `calc(100% - ${LEFTBAR_WIDTH}px)` : '100%',
+              //   transition: theme.transitions.create(['all'], {
+              //     easing: theme.transitions.easing.sharp,
+              //     duration: theme.transitions.duration.leavingScreen,
+              //   }),
+              // }}
             >
-              {/* <Footer /> */}
+              <Footer />
             </Box>
           </Stack>
         </Box>
