@@ -1,3 +1,4 @@
+import  Participant  from '@modules/participant/defs/routes';
 import  Organizer  from '@modules/organizer/defs/api-routes';
 import Auth from '@modules/auth/defs/api-routes';
 import Users from '@modules/users/defs/api-routes';
@@ -11,7 +12,8 @@ const ApiRoutes = {
   Uploads,
   Posts,
   Events,
-  Organizer
+  Organizer,
+  Participant
 };
 
 export default ApiRoutes;

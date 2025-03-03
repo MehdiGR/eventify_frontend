@@ -9,19 +9,22 @@ const useParticipantEvents = () => {
 
   // Get events the user is registered for
   const getRegisteredEvents = async (): Promise<ApiResponse<Event[]>> => {
-    const route = ApiRoutes.Events.Participant.RegisteredEvents;
+    const route = ApiRoutes.Participant.RegisteredEvents;
     return await fetchApi<Event[]>(route);
   };
 
   // Register for an event
   const registerForEvent = async (eventId: number): Promise<ApiResponse<any>> => {
-    const route = ApiRoutes.Events.Participant.Register.replace('{id}', eventId.toString());
+    const route = ApiRoutes.Events.ParticipantRegister.replace('{id}', eventId.toString());
     return await fetchApi(route, { method: 'POST' });
   };
 
   // Unregister from an event
   const unregisterFromEvent = async (eventId: number): Promise<ApiResponse<any>> => {
-    const route = ApiRoutes.Events.Participant.Unregister.replace('{id}', eventId.toString());
+    const route = ApiRoutes.Events.ParticipantUnregister.replace(
+      '{id}',
+      eventId.toString()
+    );
     return await fetchApi(route, { method: 'DELETE' });
   };
 
