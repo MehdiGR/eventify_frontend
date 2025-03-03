@@ -1,7 +1,7 @@
 import Routes from '@common/defs/routes';
 import ItemsTable, { RowAction } from '@common/components/partials/ItemsTable';
 import { Event } from '@modules/events/defs/types';
-import useEvents, { CreateOneInput, UpdateOneInput } from '@modules/events/hooks/api/useEvents';
+// import useEvents, { CreateOneInput, UpdateOneInput } from '@modules/events/hooks/api/useEvents';
 import { GridColumns } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import Namespaces from '@common/defs/namespaces';
@@ -9,7 +9,10 @@ import { CrudRow } from '@common/defs/types';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Edit, People, Visibility } from '@mui/icons-material';
+import ParticipantsModal from '@modules/participant/components/partials/ParticipantsModal';
 import UpdateEventModal from '@modules/events/components/UpdateEventModal';
+import useOrganizerEvents from '@modules/organizer/hook/api/useOrganizerEvents';
+import { CreateOneInput, UpdateOneInput } from '@modules/events/hooks/api/useEvents';
 
 interface Row extends CrudRow {
   name: string;
@@ -20,7 +23,7 @@ interface Row extends CrudRow {
   organizer_id: number;
 }
 
-const EventsTable = () => {
+const OrganizerEventsTable = () => {
   const { t, i18n } = useTranslation(['event']);
 
   const columns: GridColumns<Row> = [
@@ -57,6 +60,7 @@ const EventsTable = () => {
 
   const [translatedColumns, setTranslatedColumns] = useState<GridColumns<Row>>(columns);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showParticipants, setShowParticipants] = useState(false);
   const [isOpenUpdateEventModal, setIsOpenUpdateEventModal] = useState(false);
 
   useEffect(() => {
@@ -85,6 +89,23 @@ const EventsTable = () => {
       },
       enabled: (id, item) => true,
     },
+    {
+      label: (id, item) => t('event:actions.viewDetails'),
+      icon: (id, item) => <Visibility fontSize="small" />,
+      onClick: (id, item) => {
+        setSelectedEvent(item);
+      },
+      enabled: (id, item) => true,
+    },
+    {
+      label: (id, item) => t('event:viewParticipants'),
+      icon: (id, item) => <People fontSize="small" />,
+      onClick: (id, item) => {
+        setSelectedEvent(item);
+        setShowParticipants(true);
+      },
+      enabled: (id, item) => true,
+    },
   ];
 
   return (
@@ -92,7 +113,7 @@ const EventsTable = () => {
       <ItemsTable<Event, CreateOneInput, UpdateOneInput, Row>
         namespace={Namespaces.Events}
         routes={Routes.Events}
-        useItems={useEvents}
+        useItems={useOrganizerEvents}
         columns={translatedColumns}
         itemToRow={itemToRow}
         showEdit={() => false}
@@ -101,7 +122,13 @@ const EventsTable = () => {
         exportable
         actions={eventActions}
       />
-     
+      {showParticipants && selectedEvent && (
+        <ParticipantsModal
+          event={{ id: selectedEvent.id, name: selectedEvent.name }}
+          open={showParticipants}
+          onClose={() => setShowParticipants(false)}
+        />
+      )}
       {selectedEvent && (
         <UpdateEventModal
           event={selectedEvent}
@@ -113,4 +140,4 @@ const EventsTable = () => {
   );
 };
 
-export default EventsTable;
+export default OrganizerEventsTable;

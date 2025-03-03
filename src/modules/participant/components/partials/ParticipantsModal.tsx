@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
-import useEventParticipants from '@modules/events/hooks/api/useEventParticipants';
 import { EventParticipant } from '@modules/events/defs/types';
+import useParticipantEvents from '@modules/participant/hook/api/useParticipantEvents';
 
 interface ParticipantsModalProps {
   event: { id: number; name: string };
@@ -10,19 +10,19 @@ interface ParticipantsModalProps {
 }
 
 const ParticipantsModal = ({ event, open, onClose }: ParticipantsModalProps) => {
-  const { fetchParticipants } = useEventParticipants();
+  const { getEventParticipants } = useParticipantEvents();
   const [participants, setParticipants] = useState<EventParticipant[]>([]);
 
   useEffect(() => {
     if (open && event) {
-      fetchParticipants(event.id).then((response) => {
+      getEventParticipants(event.id).then((response) => {
         if (response.success) {
           // Type assertion ensures that response.data is treated as EventParticipant[]
           setParticipants(response.data as EventParticipant[]);
         }
       });
     }
-  }, [open, event, fetchParticipants]);
+  }, [open, event, getEventParticipants]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">

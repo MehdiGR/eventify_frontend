@@ -2,6 +2,7 @@ import Auth from '@modules/auth/defs/routes';
 import Users from '@modules/users/defs/routes';
 import Events from '@modules/events/defs/routes';
 import Organizer from '@modules/organizer/defs/routes';
+import Participant from '@modules/participant/defs/routes';
 import Admin from '@modules/admin/defs/routes';
 import Permissions from '@modules/permissions/defs/routes';
 
@@ -17,6 +18,7 @@ const Routes = {
   Users,
   Events,
   Organizer,
+  Participant,
   Admin,
 };
 

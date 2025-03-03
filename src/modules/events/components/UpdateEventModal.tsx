@@ -32,9 +32,6 @@ interface UpdateEventModalProps {
 }
 
 const UpdateEventModal = ({ open, onClose, event }: UpdateEventModalProps) => {
-  const handleSubmitSuccess = () => {
-    onClose();
-  };
 
   return (
     <StyledDialog open={open} onClose={onClose} maxWidth="md" fullWidth>

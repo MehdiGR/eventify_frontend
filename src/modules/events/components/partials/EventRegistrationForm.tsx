@@ -16,9 +16,9 @@ import {
 } from '@mui/material';
 import { LocationOn, CalendarToday, ArrowBack, ExpandMore } from '@mui/icons-material';
 import { Event } from '@modules/events/defs/types';
-import useEventParticipants from '@modules/events/hooks/api/useEventParticipants';
 import { useSnackbar } from 'notistack';
 import { useRouter } from 'next/router';
+import useParticipantEvents from '@modules/participant/hook/api/useParticipantEvents';
 
 interface EventDetailProps {
   event: Event;
@@ -27,11 +27,11 @@ interface EventDetailProps {
 const EventDetail: React.FC<EventDetailProps> = ({ event }) => {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
-  const { register } = useEventParticipants();
+  const { registerForEvent } = useParticipantEvents();
   const [value, setValue] = React.useState(0);
 
   const handleRegisterClick = async () => {
-    const response = await register(event.id);
+    const response = await registerForEvent(event.id);
     if (response.success) {
       enqueueSnackbar('Registered successfully', { variant: 'success' });
     } else {

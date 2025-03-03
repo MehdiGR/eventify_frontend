@@ -7,7 +7,8 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 
-const EventFooter = () => {
+// No need for props in the footer since the layout handles positioning
+const Footer = () => {
   const { t } = useTranslation(['footer']);
   const theme = useTheme();
   const router = useRouter();
@@ -18,7 +19,7 @@ const EventFooter = () => {
     <Box
       component="footer"
       sx={{
-        width: '100%',
+        width: '100%', // Always 100% of its container (which is controlled by Layout)
         backgroundColor: theme.palette.primary.darker,
         color: 'common.white',
         py: 8,
@@ -174,4 +175,4 @@ const EventFooter = () => {
   );
 };
 
-export default EventFooter;
+export default Footer;

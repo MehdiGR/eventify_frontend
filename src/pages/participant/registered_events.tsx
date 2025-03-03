@@ -40,7 +40,7 @@ interface Event {
   status: 'upcoming' | 'past' | 'cancelled';
 }
 
-export default function MyEvents() {
+export default function RegisteredEvents() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [sortBy, setSortBy] = useState('date');
   const theme = useTheme();

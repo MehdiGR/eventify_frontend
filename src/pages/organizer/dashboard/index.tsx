@@ -11,12 +11,12 @@ import Namespaces from '@common/defs/namespaces';
 import Labels from '@common/defs/labels';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
-import EventsTable from '@modules/events/components/partials/EventsTable';
 import { useEffect, useState } from 'react';
 import useApi from '@common/hooks/useApi';
 import LoadingPage from '@common/components/lib/feedbacks/LoadingPage';
 import SummaryCards from '@modules/organizer/components/dashboard/SummaryCards';
 import CreateEventModal from '@modules/events/components/CreateEventModal';
+import OrganizerEventsTable from '@modules/organizer/components/partials/organizeEvents';
 
 const OrganizersPage: NextPage = () => {
   const router = useRouter();
@@ -61,7 +61,7 @@ const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
 
   return (
     <>
-    <CreateEventModal open={isOpenCreateEventModal} onClose={closeModalCreateEventModal} />
+      <CreateEventModal open={isOpenCreateEventModal} onClose={closeModalCreateEventModal} />
       <PageHeader
         title={t(`event:${Labels.Events.ReadAll}`)}
         action={{
@@ -70,7 +70,7 @@ const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
           // onClick: () => router.push(Routes.Events.CreateOne),
           onClick: () => openModalCreateEventModal(),
           permission: {
-            entity: Namespaces.Events,
+            entity: Namespaces.Organizers,
             action: CRUD_ACTION.CREATE,
           },
         }}
@@ -101,8 +101,8 @@ const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
           loading={statsLoading}
         />
       )}
-      {/* EventsTable manages its own data via useEvents hook */}
-      <EventsTable />
+      {/* OrganizerEventsTable manages its own data via useEvents hook */}
+      <OrganizerEventsTable />
     </>
   );
 };
@@ -112,12 +112,12 @@ export const getStaticProps = async ({ locale }: { locale: string }) => ({
     ...(await serverSideTranslations(locale, ['topbar', 'footer', 'leftbar', 'event', 'common'])),
   },
 });
-
+// export default OrganizersPage;
 export default withAuth(
   withPermissions(OrganizersPage, {
     requiredPermissions: {
       entity: Namespaces.Events,
-      action: CRUD_ACTION.UPDATE,
+      action: CRUD_ACTION.READ_OWN,
     },
     redirectUrl: Routes.Permissions.Forbidden,
   }),

@@ -12,7 +12,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'react-i18next';
 import CustomBreadcrumbs from '@common/components/lib/navigation/CustomBreadCrumbs';
 import CreateEventForm from '@modules/events/components/partials/CreateEventForm';
-import CreateEventStepper from '@modules/events/components/partials/CreateStepper';
 
 const CreateEventPage: NextPage = () => {
   const { t } = useTranslation(['event', 'common']);
@@ -27,7 +26,6 @@ const CreateEventPage: NextPage = () => {
           { name: t(`event:${Labels.Events.NewOne}`) },
         ]}
       />
-      {/* <CreateEventStepper /> */}
       <CreateEventForm />
     </>
   );

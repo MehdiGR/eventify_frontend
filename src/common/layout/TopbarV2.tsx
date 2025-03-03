@@ -36,6 +36,7 @@ import Notification from '@common/layout/Notification';
 import Logo from '@common/assets/svgs/Logo';
 import CreateEventModal from '@modules/events/components/CreateEventModal';
 import Image from 'next/image';
+import BecomeOrganizerModal from '@modules/participant/components/becomeOrganizerModal';
 
 const Topbar = () => {
   const { t, i18n } = useTranslation(['topbar']);
@@ -76,29 +77,37 @@ const Topbar = () => {
 
   const openModalCreateEventModal = () => setIsOpenCreateEventModal(true);
   const closeModalCreateEventModal = () => setIsOpenCreateEventModal(false);
+  // handle modal become organizer
+  const [isOpenBecomeOrganizerModal, setIsOpenBecomeOrganizerModal] = useState(false);
+
+  const openModalBecomeOrganizerModal = () => setIsOpenBecomeOrganizerModal(true);
+  const closeModalBecomeOrganizerModal = () => setIsOpenBecomeOrganizerModal(false);
   // Safe navigation handler that validates routes before navigation
- const getLanguageFlag = (lang: string) => {
-   switch (lang) {
-     case 'en':
-       return '🇺🇸';
-     case 'fr':
-       return '🇫🇷';
-     case 'es':
-       return '🇪🇸';
-     default:
-       return '🌐';
-   }
- };
-  const navigate = (path:string) => {
+  const getLanguageFlag = (lang: string) => {
+    switch (lang) {
+      case 'en':
+        return '🇺🇸';
+      case 'fr':
+        return '🇫🇷';
+      case 'es':
+        return '🇪🇸';
+      default:
+        return '🌐';
+    }
+  };
+  const navigate = (path: string) => {
     if (path && typeof path === 'string') {
       router.push(path);
     } else {
       console.error('Invalid navigation path:', path);
     }
   };
+  const toggleSidebar = () => {
+    setShowDrawer((oldValue) => !oldValue);
+  };
   return (
     <AppBar
-      position="sticky"
+      position="static"
       sx={{
         boxShadow: (theme) => theme.customShadows.z1,
         backgroundColor: 'common.white',
@@ -107,16 +116,11 @@ const Topbar = () => {
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         {/* Logo and Main Navigation */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {/* <Logo
-            id="topbar-logo"
-            onClick={() => navigate(Routes.Common.Home)}
-            sx={{ cursor: 'pointer', mr: 6 }}
-          /> */}
-
           <Box
             sx={{
               cursor: 'pointer',
               mr: 6,
+              ml: 6,
               width: 140,
               height: 60,
               position: 'relative',
@@ -134,44 +138,61 @@ const Topbar = () => {
             />
           </Box>
           {/* Desktop Navigation Links */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-            <Button onClick={() => navigate(Routes.Common.Home)} startIcon={<HomeIcon />}>
-              {t('topbar:home')}
-            </Button>
-            <Button onClick={() => navigate(Routes.Events.ReadAll)} startIcon={<EventIcon />}>
-              {t('topbar:events')}
-            </Button>
-
-            {/* Role-specific navigation */}
-            {userRole === 'participant' && (
-              <Button onClick={() => navigate(Routes.Events.MyEvents)} startIcon={<EventIcon />}>
-                {t('topbar:my_events')}
+          <Box
+            sx={{
+              display: 'block',
+              
+              
+            }}
+          >
+            <Box
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                gap: 4,
+                justifyContent:"flex-end"
+              }}
+            >
+              <Button onClick={() => navigate(Routes.Common.Home)} startIcon={<HomeIcon />}>
+                {t('topbar:home')}
               </Button>
-            )}
-
-            {userRole === 'organizer' && (
-              <Button
-                onClick={() => navigate(Routes.Organizer.Dashboard)}
-                startIcon={<DashboardIcon />}
-              >
-                {t('topbar:Dashboard')}
+              <Button onClick={() => navigate(Routes.Events.ReadAll)} startIcon={<EventIcon />}>
+                {t('topbar:events')}
               </Button>
-            )}
 
-            {userRole === 'admin' && (
-              <Button
-                onClick={() => navigate(Routes.Admin.Dashboard)}
-                startIcon={<DashboardIcon />}
-              >
-                {t('topbar:dashboard')}
-              </Button>
-            )}
+              {/* Role-specific navigation */}
+              {userRole === 'participant' && (
+                <Button
+                  onClick={() => navigate(Routes.Participant.RegisteredEvents)}
+                  startIcon={<EventIcon />}
+                >
+                  {t('topbar:my_events')}
+                </Button>
+              )}
+
+              {userRole === 'organizer' && (
+                <Button
+                  onClick={() => navigate(Routes.Organizer.Dashboard)}
+                  startIcon={<DashboardIcon />}
+                >
+                  {t('topbar:Dashboard')}
+                </Button>
+              )}
+
+              {userRole === 'admin' && (
+                <Button
+                  onClick={() => navigate(Routes.Admin.Dashboard)}
+                  startIcon={<DashboardIcon />}
+                >
+                  {t('topbar:dashboard')}
+                </Button>
+              )}
+            </Box>
           </Box>
         </Box>
 
         {/* Right side controls */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {/* Create Event Button - Moved earlier in the right section */}
+          {/* Create Event Button */}
           {userRole === 'organizer' && (
             <>
               {' '}
@@ -188,6 +209,23 @@ const Topbar = () => {
               <CreateEventModal
                 open={isOpenCreateEventModal}
                 onClose={closeModalCreateEventModal}
+              />
+            </>
+          )}
+          {userRole === 'participant' && (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => openModalBecomeOrganizerModal()}
+                startIcon={<AddCircleOutlined />}
+                sx={{ mr: 2 }}
+              >
+                {t('topbar:become_organizer')}
+              </Button>
+              <BecomeOrganizerModal
+                open={isOpenBecomeOrganizerModal}
+                onClose={closeModalBecomeOrganizerModal}
               />
             </>
           )}
@@ -269,7 +307,7 @@ const Topbar = () => {
                   </ListItemIcon>
                   {t('topbar:profile')}
                 </MenuItem>
-                {userRole === 'admin' && (
+                {/* {userRole === 'admin' && (
                   <MenuItem
                     onClick={() => {
                       navigate(Routes.Admin.Dashboard);
@@ -281,7 +319,7 @@ const Topbar = () => {
                     </ListItemIcon>
                     {t('topbar:dashboard')}
                   </MenuItem>
-                )}
+                )} */}
                 <MenuItem
                   onClick={() => {
                     logout();
@@ -311,6 +349,7 @@ const Topbar = () => {
             <MenuIcon />
           </IconButton>
         </Box>
+        
       </Toolbar>
 
       {/* Mobile Drawer */}
@@ -377,7 +416,7 @@ const Topbar = () => {
               <Button
                 fullWidth
                 onClick={() => {
-                  navigate(Routes.Events.MyEvents);
+                  navigate(Routes.Events.RegisteredEvents);
                   toggleDrawer();
                 }}
                 startIcon={<EventIcon />}

@@ -8,6 +8,8 @@ import { Container, useTheme, Button, Typography } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useTranslation } from 'react-i18next';
+import useAuth from '@modules/auth/hooks/api/useAuth';
+import { useRouter } from 'next/router';
 
 interface ILayoutProps {
   children: React.ReactNode;
@@ -16,11 +18,16 @@ interface ILayoutProps {
 const Layout = (props: ILayoutProps) => {
   const { children } = props;
   const theme = useTheme();
-  const [openLeftbar, setOpenLeftbar] = useState(true);
   const [display, setDisplay] = useState(true);
   const underMaintenance = process.env.NEXT_PUBLIC_UNDER_MAINTENANCE === 'true';
   const { t } = useTranslation('common');
-
+  const { user } = useAuth();
+  const userRole = user?.rolesNames[0];
+  console.log("userRole", userRole);
+  const isAdmin = userRole === 'admin';
+  const router = useRouter();
+  const isAdminDashboard = router.pathname.startsWith('/admin');
+  const [openLeftbar, setOpenLeftbar] = useState(isAdmin && isAdminDashboard);
   useEffect(() => {
     setDisplay(!underMaintenance);
   }, [underMaintenance]);
@@ -88,15 +95,24 @@ const Layout = (props: ILayoutProps) => {
       >
         <Box sx={{ minHeight: '100vh', width: '100vw' }}>
           <Stack direction="column" sx={{ height: '100%' }}>
-            {/* <Leftbar open={openLeftbar} onToggle={(open) => setOpenLeftbar(open)} /> */}
+            {isAdmin && isAdminDashboard &&(
+              <Leftbar open={openLeftbar} onToggle={(open) => setOpenLeftbar(open)} />
+            )}{' '}
             <Topbar />
             <Box
               sx={{
                 display: 'flex',
                 flex: 1,
                 justifyContent: 'center',
-                // marginLeft: openLeftbar ? LEFTBAR_WIDTH + 'px' : 0,
-                // width: openLeftbar ? `calc(100% - ${LEFTBAR_WIDTH}px)` : '100%',
+                marginLeft: isAdmin && isAdminDashboard && openLeftbar ? LEFTBAR_WIDTH + 'px' : 0,
+                maxWidth:
+                  isAdmin && isAdminDashboard && openLeftbar
+                    ? `calc(100% - ${LEFTBAR_WIDTH}px)`
+                    : '100%',
+                transition: theme.transitions.create(['all'], {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.leavingScreen,
+                }),
               }}
             >
               <Container
@@ -115,14 +131,20 @@ const Layout = (props: ILayoutProps) => {
               </Container>
             </Box>
             <Box
-              // sx={{
-              //   marginLeft: openLeftbar ? LEFTBAR_WIDTH + 'px' : 0,
-              //   maxWidth: openLeftbar ? `calc(100% - ${LEFTBAR_WIDTH}px)` : '100%',
-              //   transition: theme.transitions.create(['all'], {
-              //     easing: theme.transitions.easing.sharp,
-              //     duration: theme.transitions.duration.leavingScreen,
-              //   }),
-              // }}
+              sx={{
+                // display: 'flex',
+                // flex: 1,
+                // justifyContent: 'center',
+                marginLeft: isAdmin && isAdminDashboard && openLeftbar ? LEFTBAR_WIDTH + 'px' : 0,
+                maxWidth:
+                  isAdmin && isAdminDashboard && openLeftbar
+                    ? `calc(100% - ${LEFTBAR_WIDTH}px)`
+                    : '100%',
+                transition: theme.transitions.create(['all'], {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.leavingScreen,
+                }),
+              }}
             >
               <Footer />
             </Box>

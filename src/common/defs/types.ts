@@ -36,8 +36,11 @@ export interface CrudApiRoutes {
 export enum CRUD_ACTION {
   CREATE = 'create',
   READ = 'read',
+  READ_OWN = 'read_own',
   UPDATE = 'update',
+  UPDATE_OWN = 'update_own',
   DELETE = 'delete',
+  DELETE_OWN = 'delete_own',
 }
 
 export interface CrudLabels {
@@ -65,4 +68,5 @@ export interface NavItem {
   namespace?: string;
   permission?: CRUD_ACTION;
   children?: NavItem[];
+  contentKey?: string; 
 }

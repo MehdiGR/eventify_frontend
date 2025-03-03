@@ -1,5 +1,3 @@
-// components/Leftbar.tsx
-import React from 'react';
 import {
   List,
   ListItemText,
@@ -42,12 +40,9 @@ import Image from 'next/image';
 interface LeftbarProps {
   open: boolean;
   onToggle: (open: boolean) => void;
-  onContentChange?: (contentKey: string) => void;
 }
-
 export const LEFTBAR_WIDTH = 260;
-
-const Leftbar: React.FC<LeftbarProps> = ({ open, onToggle, onContentChange }) => {
+const Leftbar = (props: LeftbarProps) => {
   const theme = useTheme();
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -55,8 +50,7 @@ const Leftbar: React.FC<LeftbarProps> = ({ open, onToggle, onContentChange }) =>
   const [navEntries, setNavEntries] = useState<NavGroup[]>([]);
   const [subNavItems, setSubNavItems] = useState<NavItem[]>();
   const { t } = useTranslation(['leftbar']);
-  const isMobile = !useMediaQuery(theme.breakpoints.up('sm'));
-
+  const open = props.open;
   const handleOpenSubDrawer = (items: NavItem[]) => {
     setSubNavItems(items);
   };
@@ -65,49 +59,57 @@ const Leftbar: React.FC<LeftbarProps> = ({ open, onToggle, onContentChange }) =>
     setSubNavItems([]);
   };
 
+  const isMobile = !useMediaQuery(theme.breakpoints.up('sm'));
   const toggleLeftbar = () => {
     const newOpen = !open;
-    onToggle(newOpen);
+    props.onToggle(newOpen);
   };
 
-  const filteredMenuItems = (menuItems: NavItem[]): NavItem[] => {
-    return menuItems
+  const filteredGroups = () => {
+    const groups = menuGroups
+      .map((menuGroup) => ({
+        ...menuGroup,
+        items: filteredMenuItems(menuGroup.items),
+      }))
+      .filter((group) => group.items.length > 0);
+    return groups;
+  };
+
+  const filteredMenuItems = (menuItems: NavItem[]) => {
+    const items = menuItems
       .map((menuItem) => {
         let item = { ...menuItem };
         if (menuItem.children && menuItem.children.length > 0) {
           item = { ...item, children: filteredMenuItems(menuItem.children) };
         }
         if (
-          !item.namespace ||
+          !menuItem.suffix &&
+          menuItem.routes &&
+          (!item.namespace || (item.namespace && can(item.namespace, CRUD_ACTION.CREATE)))
+        ) {
+          item = {
+            ...item,
+            suffix: {
+              tooltip: 'Créer',
+              icon: <AddRounded />,
+              link: menuItem.routes.CreateOne,
+            },
+          };
+        }
+
+        return !item.namespace ||
           !item.permission ||
           (item.namespace && item.permission && can(item.namespace, item.permission))
-        ) {
-          return item;
-        }
-        return null;
+          ? item
+          : null;
       })
-      .filter((menuItem): menuItem is NavItem => menuItem !== null);
-  };
-
-  const filteredGroups = (): NavGroup[] => {
-    return menuGroups
-      .map((menuGroup) => ({
-        ...menuGroup,
-        items: filteredMenuItems(menuGroup.items),
-      }))
-      .filter((group) => group.items.length > 0);
+      .filter((menuItem) => menuItem !== null) as NavItem[];
+    return items;
   };
 
   useEffect(() => {
     setNavEntries(filteredGroups());
   }, [user]);
-
-  const handleMenuItemClick = (item: NavItem) => {
-    if (onContentChange) {
-      onContentChange(item.contentKey ? item.contentKey:"");
-    }
-  };
-
   return (
     <>
       <Drawer
@@ -221,10 +223,6 @@ const Leftbar: React.FC<LeftbarProps> = ({ open, onToggle, onContentChange }) =>
                       passHref
                       href={link}
                       className={`${router.pathname === link ? 'active' : ''}`}
-                      onClick={(e) => {
-                        e.preventDefault(); // Prevent default navigation
-                        handleMenuItemClick(item);
-                      }}
                     >
                       <StyledListItemButton
                         onMouseEnter={() => handleOpenSubDrawer(item.children || [])}
@@ -236,6 +234,7 @@ const Leftbar: React.FC<LeftbarProps> = ({ open, onToggle, onContentChange }) =>
                           <Tooltip title={item.suffix.tooltip}>
                             <IconButton
                               size="small"
+                              // on click, stoppropagation to avoid triggering the parent link
                               onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();

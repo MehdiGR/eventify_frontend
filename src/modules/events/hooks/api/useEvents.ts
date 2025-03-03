@@ -7,31 +7,38 @@ import { Id } from '@common/defs/types';
 export interface CreateOneInput {
   name: string;
   description: string;
-  start_date: string; // ISO date string
-  end_date: string; // ISO date string
+  start_date: string;
+  end_date: string;
   organizer_id: Id;
   location: string;
   max_participants: number;
-  image?: string | null; // Changed from image: null to match Event interface
+  image?: string | null;
 }
 
 export interface UpdateOneInput {
   id: number;
   name?: string;
   description?: string;
-  start_date?: string; // ISO date string
-  end_date?: string; // ISO date string
+  start_date?: string;
+  end_date?: string;
   location?: string;
   max_participants?: number;
-  image?: string | null; // Added to match Event interface
-  // No organizer_id here, which is correct as we don't want to allow changing the organizer
+  image?: string | null;
 }
+
 export type UpsertOneInput = CreateOneInput | UpdateOneInput;
 
 const useEvents: UseItems<Event, CreateOneInput, UpdateOneInput> = (
   opts: UseItemsOptions = defaultOptions
 ) => {
-  const apiRoutes = ApiRoutes.Events; // Import API routes for events
+  const apiRoutes = {
+    CreateOne: ApiRoutes.Events.CreateOne,
+    ReadAll: ApiRoutes.Events.ReadAll,
+    ReadOne: ApiRoutes.Events.ReadOne,
+    UpdateOne: ApiRoutes.Events.UpdateOne,
+    DeleteOne: ApiRoutes.Events.DeleteOne,
+  };
+
   const useItemsHook = useItems<Event, CreateOneInput, UpdateOneInput>(apiRoutes, opts);
   return useItemsHook;
 };
